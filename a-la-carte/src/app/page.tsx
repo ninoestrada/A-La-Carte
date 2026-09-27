@@ -1,21 +1,28 @@
+import RecipeCard from "@/components/RecipeCard";
 import { supabase } from "@/lib/supabaseClient";
 
 export default async function HomePage() {
-  const { data, error } = await supabase
+  const { data: recipes, error } = await supabase
     .from("recipes")
-    .select("*")
+    .select("id, title, image_url")
+    .eq("is_public", true)
     .order("created_at", { ascending: false });
 
-  if (error) return <pre style={{ color: "red" }}>{error.message}</pre>;
+  if (error) {
+    return <p>Error loading recipes: {error.message}</p>;
+  }
 
   return (
     <main style={{ padding: 32 }}>
-      <h1 style={{ fontSize: "2rem", marginBottom: 16 }}>À La Carte</h1>
-      <ul style={{ lineHeight: "1.8" }}>
-        {data?.map((recipe) => (
-          <li key={recipe.id}>{recipe.title}</li>
-        ))}
-      </ul>
+      <h1>À La Carte</h1>
+
+      {recipes?.map((recipe) => (
+        <RecipeCard
+          key={recipe.id}
+          image={recipe.image_url}
+          title={recipe.title}
+        />
+      ))}
     </main>
   );
 }
