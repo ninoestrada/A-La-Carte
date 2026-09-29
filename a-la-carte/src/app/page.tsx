@@ -1,5 +1,5 @@
-import RecipeCard from "@/components/RecipeCard";
 import { supabase } from "@/lib/supabaseClient";
+import RecipeCarousel from "@/components/RecipeCarousel";
 
 export default async function HomePage() {
   const { data: recipes, error } = await supabase
@@ -16,13 +16,7 @@ export default async function HomePage() {
     <main style={{ padding: 32 }}>
       <h1>À La Carte</h1>
 
-      {recipes?.map((recipe) => (
-        <RecipeCard
-          key={recipe.id}
-          image={recipe.image_url}
-          title={recipe.title}
-        />
-      ))}
+      <RecipeCarousel title="Recipes" recipes={recipes ?? []} />
     </main>
   );
 }
