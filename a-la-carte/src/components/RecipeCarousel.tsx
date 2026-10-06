@@ -9,6 +9,9 @@ interface Recipe {
   id: string;
   title: string;
   image_url: string;
+  cuisine: string | null;
+  cook_time_minutes: number | null;
+  dietary_tags: string[] | null;
 }
 
 interface RecipeCarouselProps {
@@ -31,7 +34,14 @@ export default function RecipeCarousel({
       >
         {recipes.map((recipe) => (
           <Carousel.Slide key={recipe.id}>
-            <RecipeCard image={recipe.image_url} title={recipe.title} />
+            <RecipeCard
+              id={recipe.id}
+              image={recipe.image_url}
+              title={recipe.title}
+              cuisine={recipe.cuisine}
+              cookTime={recipe.cook_time_minutes}
+              dietaryTags={recipe.dietary_tags}
+            />
           </Carousel.Slide>
         ))}
       </Carousel>
