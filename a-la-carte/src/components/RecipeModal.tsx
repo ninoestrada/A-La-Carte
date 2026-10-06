@@ -40,11 +40,17 @@ export default function RecipeModal({
       return;
     }
 
+    let cancelled = false;
+
     async function loadIngredients() {
       const { data, error } = await supabase
         .from("recipe_ingredients")
         .select("id, name, quantity, unit")
         .eq("recipe_id", id);
+
+      if (cancelled) {
+        return;
+      }
 
       if (error) {
         console.error("Error loading ingredients:", error);
@@ -55,6 +61,10 @@ export default function RecipeModal({
     }
 
     loadIngredients();
+
+    return () => {
+      cancelled = true;
+    };
   }, [opened, id]);
 
   return (
