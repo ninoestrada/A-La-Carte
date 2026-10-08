@@ -2,6 +2,7 @@
 
 import { Group, Title } from "@mantine/core";
 import RecipeSearch from "./RecipeSearch";
+import SignInButton from "@/components/SignInButton";
 
 interface NavbarProps {
   search: string;
@@ -31,12 +32,16 @@ export default function Navbar({
           À La Carte
         </Title>
 
-        <RecipeSearch
-          search={search}
-          setSearch={setSearch}
-          opened={searchOpened}
-          setOpened={setSearchOpened}
-        />
+        <Group gap="xs" align="center" wrap="nowrap">
+          <RecipeSearch
+            search={search}
+            setSearch={setSearch}
+            opened={searchOpened}
+            setOpened={setSearchOpened}
+          />
+
+          <SignInButton provider="google" />
+        </Group>
       </Group>
     </nav>
   );
