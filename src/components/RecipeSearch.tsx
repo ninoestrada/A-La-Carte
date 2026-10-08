@@ -86,6 +86,7 @@ export default function RecipeSearch({
             }}
             placeholder="Search recipes..."
             variant="unstyled"
+            rightSectionPointerEvents="all"
             rightSection={
               <ActionIcon
                 variant="subtle"
