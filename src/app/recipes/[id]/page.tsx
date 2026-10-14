@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { supabase } from "@/lib/supabaseClient";
+import { createClient } from "@/lib/supabase/server";
 
 interface RecipePageProps {
   params: Promise<{
@@ -10,11 +10,12 @@ interface RecipePageProps {
 export default async function RecipePage({ params }: RecipePageProps) {
   const { id } = await params;
 
+  const supabase = await createClient();
+
   const { data: recipe, error } = await supabase
     .from("recipes")
     .select("id, title, image_url, cuisine, cook_time_minutes, dietary_tags")
     .eq("id", id)
-    .eq("is_public", true)
     .maybeSingle();
 
   const { data: ingredients, error: ingredientsError } = await supabase
@@ -48,26 +49,24 @@ export default async function RecipePage({ params }: RecipePageProps) {
     <main style={{ padding: 32 }}>
       <h1>{recipe.title}</h1>
 
-      <div
-        style={{
-          position: "relative",
-          width: "100%",
-          maxWidth: 800,
-          height: 400,
-        }}
-      >
-        <Image
-          src={recipe.image_url}
-          alt={recipe.title}
-          fill
-          sizes="(max-width: 800px) 100vw, 800px"
+      {recipe.image_url && (
+        <div
           style={{
-            objectFit: "cover",
-            borderRadius: 8,
+            position: "relative",
+            width: "100%",
+            maxWidth: 800,
+            height: 400,
           }}
-        />
-      </div>
-
+        >
+          <Image
+            src={recipe.image_url}
+            alt={recipe.title}
+            fill
+            sizes="(max-width: 800px) 100vw, 800px"
+            style={{ objectFit: "cover", borderRadius: 8 }}
+          />
+        </div>
+      )}
       <p>
         {[
           recipe.cuisine,
