@@ -1,6 +1,7 @@
 "use client";
 
-import { Group, Title } from "@mantine/core";
+import { Button, Group, Title } from "@mantine/core";
+import Link from "next/link";
 import RecipeSearch from "./RecipeSearch";
 import SignInButton from "@/components/SignInButton";
 
@@ -28,9 +29,20 @@ export default function Navbar({
       }}
     >
       <Group justify="space-between">
-        <Title order={2} c="white">
-          À La Carte
-        </Title>
+        <Group gap="xl" align="center">
+          <Title order={2} c="white">
+            À La Carte
+          </Title>
+
+          <Button
+            component={Link}
+            href="/recipes/new"
+            variant="subtle"
+            color="gray"
+          >
+            Create Recipe
+          </Button>
+        </Group>
 
         <Group gap="xs" align="center" wrap="nowrap">
           <RecipeSearch
