@@ -37,6 +37,8 @@ export default async function HomePage() {
 
   let myRecipes: typeof recipes = [];
 
+  let myRecipesLoadError = false;
+
   if (user) {
     const { data, error: myRecipesError } = await supabase
       .from("recipes")
@@ -58,6 +60,8 @@ export default async function HomePage() {
 
     if (myRecipesError) {
       console.error("Error loading My Recipes:", myRecipesError);
+
+      myRecipesLoadError = true;
     } else {
       myRecipes = data ?? [];
     }
@@ -66,8 +70,9 @@ export default async function HomePage() {
   return (
     <RecipeBrowser
       recipes={recipes ?? []}
-      myRecipes={myRecipes ?? []}
+      myRecipes={myRecipes}
       isSignedIn={!!user}
+      myRecipesLoadError={myRecipesLoadError}
     />
   );
 }

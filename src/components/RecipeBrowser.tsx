@@ -20,12 +20,14 @@ interface RecipeBrowserProps {
   recipes: Recipe[];
   myRecipes: Recipe[];
   isSignedIn: boolean;
+  myRecipesLoadError: boolean;
 }
 
 export default function RecipeBrowser({
   recipes,
   myRecipes,
   isSignedIn,
+  myRecipesLoadError,
 }: RecipeBrowserProps) {
   const [search, setSearch] = useState("");
   const [searchOpened, setSearchOpened] = useState(false);
@@ -80,7 +82,12 @@ export default function RecipeBrowser({
           <>
             {isSignedIn && (
               <section>
-                {myRecipes.length > 0 ? (
+                {myRecipesLoadError ? (
+                  <>
+                    <h2>My Recipes</h2>
+                    <p>Unable to load your recipes. Please try again later.</p>
+                  </>
+                ) : myRecipes.length > 0 ? (
                   <RecipeCarousel title="My Recipes" recipes={myRecipes} />
                 ) : (
                   <>
