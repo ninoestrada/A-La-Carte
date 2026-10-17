@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 
 interface RecipePageProps {
@@ -58,12 +57,20 @@ export default async function RecipePage({ params }: RecipePageProps) {
             height: 400,
           }}
         >
-          <Image
-            src={recipe.image_url}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={
+              recipe.image_url?.startsWith("https://")
+                ? recipe.image_url
+                : `/api/recipes/${recipe.id}/image`
+            }
             alt={recipe.title}
-            fill
-            sizes="(max-width: 800px) 100vw, 800px"
-            style={{ objectFit: "cover", borderRadius: 8 }}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              borderRadius: 8,
+            }}
           />
         </div>
       )}
