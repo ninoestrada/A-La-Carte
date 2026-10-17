@@ -71,10 +71,27 @@ export default function CreateRecipePage() {
     );
   }
 
+  const isCookTimeValid =
+    cookTime === "" ||
+    (typeof cookTime === "number" &&
+      Number.isInteger(cookTime) &&
+      cookTime > 0);
+
   const isFormValid =
     title.trim().length > 0 &&
-    ingredients.every((ingredient) => ingredient.name.trim().length > 0) &&
-    instructions.every((instruction) => instruction.trim().length > 0);
+    title.trim().length <= 100 &&
+    isCookTimeValid &&
+    ingredients.every(
+      (ingredient) =>
+        ingredient.name.trim().length > 0 &&
+        ingredient.name.trim().length <= 60 &&
+        ingredient.quantity.trim().length <= 30 &&
+        ingredient.unit.trim().length <= 30,
+    ) &&
+    instructions.every(
+      (instruction) =>
+        instruction.trim().length > 0 && instruction.trim().length <= 1000,
+    );
 
   // 3. Photo selection, validation, and preview
   function handlePhotoChange(file: File | null) {
@@ -228,8 +245,14 @@ export default function CreateRecipePage() {
           label="Recipe Title"
           placeholder="e.g. Spaghetti Carbonara"
           required
+          maxLength={100}
           value={title}
           onChange={(event) => setTitle(event.currentTarget.value)}
+          error={
+            title.length > 0 && title.trim().length === 0
+              ? "Recipe title cannot be blank"
+              : undefined
+          }
         />
 
         <FileInput
@@ -266,6 +289,11 @@ export default function CreateRecipePage() {
           allowDecimal={false}
           value={cookTime}
           onChange={setCookTime}
+          error={
+            !isCookTimeValid
+              ? "Cooking time must be a positive whole number"
+              : undefined
+          }
         />
 
         <MultiSelect
@@ -291,20 +319,28 @@ export default function CreateRecipePage() {
         </Title>
 
         {ingredients.map((ingredient, index) => (
-          <Group key={index} align="end" grow>
+          <Group key={index} align="start" grow>
             <TextInput
               label="Ingredient"
               placeholder="e.g. Flour"
               required
+              maxLength={60}
               value={ingredient.name}
               onChange={(event) =>
                 updateIngredient(index, "name", event.currentTarget.value)
+              }
+              error={
+                ingredient.name.length > 0 &&
+                ingredient.name.trim().length === 0
+                  ? "Ingredient name cannot be blank"
+                  : undefined
               }
             />
 
             <TextInput
               label="Quantity"
               placeholder="e.g. 2"
+              maxLength={30}
               value={ingredient.quantity}
               onChange={(event) =>
                 updateIngredient(index, "quantity", event.currentTarget.value)
@@ -314,6 +350,7 @@ export default function CreateRecipePage() {
             <TextInput
               label="Unit"
               placeholder="e.g. cups"
+              maxLength={30}
               value={ingredient.unit}
               onChange={(event) =>
                 updateIngredient(index, "unit", event.currentTarget.value)
@@ -323,6 +360,7 @@ export default function CreateRecipePage() {
             <Button
               color="red"
               variant="subtle"
+              mt={25}
               onClick={() => removeIngredient(index)}
               disabled={ingredients.length === 1}
             >
@@ -340,23 +378,30 @@ export default function CreateRecipePage() {
         </Title>
 
         {instructions.map((instruction, index) => (
-          <Group key={index} align="end">
+          <Group key={index} align="start" grow>
             <Textarea
               label={`Step ${index + 1}`}
               placeholder="Describe what to do..."
               required
               autosize
               minRows={2}
+              maxLength={1000}
               style={{ flex: 1 }}
               value={instruction}
               onChange={(event) =>
                 updateInstruction(index, event.currentTarget.value)
+              }
+              error={
+                instruction.length > 0 && instruction.trim().length === 0
+                  ? "Cooking instructions cannot be blank"
+                  : undefined
               }
             />
 
             <Button
               color="red"
               variant="subtle"
+              mt={35}
               onClick={() => removeInstruction(index)}
               disabled={instructions.length === 1}
             >
