@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import {
   Button,
@@ -33,6 +33,8 @@ export default function CreateRecipePage() {
   const [isSaving, setIsSaving] = useState(false);
   const [photo, setPhoto] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const createdRecipeId = useRef<string | null>(null);
+  const uploadedPhotoPath = useRef<string | null>(null);
 
   // 2. Ingredient and instruction functions
   function addInstruction() {
@@ -130,9 +132,10 @@ export default function CreateRecipePage() {
         return;
       }
 
-      const { data: recipeId, error: saveError } = await supabase.rpc(
-        "create_recipe",
-        {
+      let recipeId = createdRecipeId.current;
+
+      if (!recipeId) {
+        const { data, error: saveError } = await supabase.rpc("create_recipe", {
           p_title: title.trim(),
           p_cuisine: cuisine.trim() || null,
           p_cook_time_minutes: cookTime === "" ? null : Number(cookTime),
@@ -143,39 +146,50 @@ export default function CreateRecipePage() {
             unit: ingredient.unit.trim(),
           })),
           p_instructions: instructions.map((instruction) => instruction.trim()),
-        },
-      );
+        });
 
-      if (saveError) {
-        alert("Failed to save recipe: " + saveError.message);
-        return;
-      }
-
-      if (!recipeId) {
-        alert("Recipe was not created.");
-        return;
-      }
-
-      if (photo) {
-        const extension = photo.name.split(".").pop()?.toLowerCase();
-        const filePath = `${user.id}/${recipeId}/${crypto.randomUUID()}.${extension}`;
-
-        // Upload photo to Supabase Storage
-        const { error: uploadError } = await supabase.storage
-          .from("recipe-images")
-          .upload(filePath, photo, {
-            contentType: photo.type,
-            upsert: false,
-          });
-
-        if (uploadError) {
-          alert(
-            "Recipe saved, but photo upload failed: " + uploadError.message,
-          );
+        if (saveError) {
+          alert("Failed to save recipe: " + saveError.message);
           return;
         }
 
-        // Save the Storage file path instead of a public URL
+        if (!data) {
+          alert("Recipe was not created.");
+          return;
+        }
+
+        recipeId = data;
+        createdRecipeId.current = recipeId;
+      }
+
+      if (photo) {
+        let filePath = uploadedPhotoPath.current;
+
+        // Only upload if this photo hasn't already been uploaded.
+        if (!filePath) {
+          const extension = photo.name.split(".").pop()?.toLowerCase();
+
+          filePath = `${user.id}/${recipeId}/${crypto.randomUUID()}.${extension}`;
+
+          const { error: uploadError } = await supabase.storage
+            .from("recipe-images")
+            .upload(filePath, photo, {
+              contentType: photo.type,
+              upsert: false,
+            });
+
+          if (uploadError) {
+            alert(
+              "Recipe saved, but photo upload failed: " + uploadError.message,
+            );
+            return;
+          }
+
+          // Remember the uploaded photo for future retries.
+          uploadedPhotoPath.current = filePath;
+        }
+
+        // Link the uploaded photo to the recipe.
         const { error: updateError } = await supabase
           .from("recipes")
           .update({ image_url: filePath })
@@ -225,6 +239,7 @@ export default function CreateRecipePage() {
           value={photo}
           onChange={handlePhotoChange}
           clearable
+          disabled={isSaving || createdRecipeId.current !== null}
         />
 
         {photoPreview && (

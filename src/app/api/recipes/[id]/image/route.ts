@@ -40,6 +40,10 @@ export async function GET(_request: NextRequest, { params }: RouteContext) {
     .download(filePath);
 
   if (downloadError || !image) {
+    if (downloadError) {
+      console.error("Error downloading recipe photo:", downloadError);
+    }
+
     return new NextResponse("Image not found", { status: 404 });
   }
 

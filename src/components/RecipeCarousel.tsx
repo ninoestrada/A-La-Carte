@@ -36,7 +36,13 @@ export default function RecipeCarousel({
           <Carousel.Slide key={recipe.id}>
             <RecipeCard
               id={recipe.id}
-              image={recipe.image_url ? `/api/recipes/${recipe.id}/image` : ""}
+              image={
+                recipe.image_url?.startsWith("https://")
+                  ? recipe.image_url
+                  : recipe.image_url
+                    ? `/api/recipes/${recipe.id}/image`
+                    : ""
+              }
               title={recipe.title}
               cuisine={recipe.cuisine}
               cookTime={recipe.cook_time_minutes}

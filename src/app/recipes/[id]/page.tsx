@@ -59,7 +59,11 @@ export default async function RecipePage({ params }: RecipePageProps) {
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={`/api/recipes/${recipe.id}/image`}
+            src={
+              recipe.image_url?.startsWith("https://")
+                ? recipe.image_url
+                : `/api/recipes/${recipe.id}/image`
+            }
             alt={recipe.title}
             style={{
               width: "100%",
