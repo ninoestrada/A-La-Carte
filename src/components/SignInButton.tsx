@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@mantine/core";
 import { createClient } from "@/lib/supabase/client";
 
@@ -13,6 +14,7 @@ interface SignInButtonProps {
 const supabase = createClient();
 
 export default function SignInButton({ provider }: SignInButtonProps) {
+  const router = useRouter();
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -62,6 +64,7 @@ export default function SignInButton({ provider }: SignInButtonProps) {
     }
 
     setIsSignedIn(false);
+    router.refresh();
   }
 
   return (

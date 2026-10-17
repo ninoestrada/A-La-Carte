@@ -18,9 +18,17 @@ interface Recipe {
 
 interface RecipeBrowserProps {
   recipes: Recipe[];
+  myRecipes: Recipe[];
+  isSignedIn: boolean;
+  myRecipesLoadError: boolean;
 }
 
-export default function RecipeBrowser({ recipes }: RecipeBrowserProps) {
+export default function RecipeBrowser({
+  recipes,
+  myRecipes,
+  isSignedIn,
+  myRecipesLoadError,
+}: RecipeBrowserProps) {
   const [search, setSearch] = useState("");
   const [searchOpened, setSearchOpened] = useState(false);
 
@@ -72,6 +80,23 @@ export default function RecipeBrowser({ recipes }: RecipeBrowserProps) {
           )
         ) : (
           <>
+            {isSignedIn && (
+              <section>
+                {myRecipesLoadError ? (
+                  <>
+                    <h2>My Recipes</h2>
+                    <p>Unable to load your recipes. Please try again later.</p>
+                  </>
+                ) : myRecipes.length > 0 ? (
+                  <RecipeCarousel title="My Recipes" recipes={myRecipes} />
+                ) : (
+                  <>
+                    <h2>My Recipes</h2>
+                    <p>You haven&apos;t created any recipes yet.</p>
+                  </>
+                )}
+              </section>
+            )}
             <RecipeCarousel title="Quick & Easy" recipes={quickRecipes} />
 
             <RecipeCarousel title="Italian" recipes={italianRecipes} />
