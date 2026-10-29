@@ -17,6 +17,10 @@ import {
   Title,
 } from "@mantine/core";
 
+function characterCount(value: string) {
+  return [...value.trim()].length;
+}
+
 export default function CreateRecipePage() {
   const router = useRouter();
 
@@ -78,19 +82,19 @@ export default function CreateRecipePage() {
       cookTime > 0);
 
   const isFormValid =
-    title.trim().length > 0 &&
-    title.trim().length <= 100 &&
+    characterCount(title) > 0 &&
+    characterCount(title) <= 100 &&
     isCookTimeValid &&
     ingredients.every(
       (ingredient) =>
-        ingredient.name.trim().length > 0 &&
-        ingredient.name.trim().length <= 60 &&
-        ingredient.quantity.trim().length <= 30 &&
-        ingredient.unit.trim().length <= 30,
+        characterCount(ingredient.name) > 0 &&
+        characterCount(ingredient.name) <= 60 &&
+        characterCount(ingredient.quantity) <= 30 &&
+        characterCount(ingredient.unit) <= 30,
     ) &&
     instructions.every(
       (instruction) =>
-        instruction.trim().length > 0 && instruction.trim().length <= 1000,
+        characterCount(instruction) > 0 && characterCount(instruction) <= 1000,
     );
 
   // 3. Photo selection, validation, and preview
@@ -245,13 +249,14 @@ export default function CreateRecipePage() {
           label="Recipe Title"
           placeholder="e.g. Spaghetti Carbonara"
           required
-          maxLength={100}
           value={title}
           onChange={(event) => setTitle(event.currentTarget.value)}
           error={
-            title.length > 0 && title.trim().length === 0
+            title.length > 0 && characterCount(title) === 0
               ? "Recipe title cannot be blank"
-              : undefined
+              : characterCount(title) > 100
+                ? "Recipe title cannot exceed 100 characters"
+                : undefined
           }
         />
 
@@ -324,36 +329,45 @@ export default function CreateRecipePage() {
               label="Ingredient"
               placeholder="e.g. Flour"
               required
-              maxLength={60}
               value={ingredient.name}
               onChange={(event) =>
                 updateIngredient(index, "name", event.currentTarget.value)
               }
               error={
                 ingredient.name.length > 0 &&
-                ingredient.name.trim().length === 0
+                characterCount(ingredient.name) === 0
                   ? "Ingredient name cannot be blank"
-                  : undefined
+                  : characterCount(ingredient.name) > 60
+                    ? "Ingredient name cannot exceed 60 characters"
+                    : undefined
               }
             />
 
             <TextInput
               label="Quantity"
               placeholder="e.g. 2"
-              maxLength={30}
               value={ingredient.quantity}
               onChange={(event) =>
                 updateIngredient(index, "quantity", event.currentTarget.value)
+              }
+              error={
+                characterCount(ingredient.quantity) > 30
+                  ? "Quantity cannot exceed 30 characters"
+                  : undefined
               }
             />
 
             <TextInput
               label="Unit"
               placeholder="e.g. cups"
-              maxLength={30}
               value={ingredient.unit}
               onChange={(event) =>
                 updateIngredient(index, "unit", event.currentTarget.value)
+              }
+              error={
+                characterCount(ingredient.unit) > 30
+                  ? "Unit cannot exceed 30 characters"
+                  : undefined
               }
             />
 
@@ -385,16 +399,17 @@ export default function CreateRecipePage() {
               required
               autosize
               minRows={2}
-              maxLength={1000}
               style={{ flex: 1 }}
               value={instruction}
               onChange={(event) =>
                 updateInstruction(index, event.currentTarget.value)
               }
               error={
-                instruction.length > 0 && instruction.trim().length === 0
+                instruction.length > 0 && characterCount(instruction) === 0
                   ? "Cooking instructions cannot be blank"
-                  : undefined
+                  : characterCount(instruction) > 1000
+                    ? "Cooking instructions cannot exceed 1000 characters"
+                    : undefined
               }
             />
 
