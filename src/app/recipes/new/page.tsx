@@ -7,11 +7,12 @@ import {
   Button,
   Container,
   FileInput,
-  Group,
+  Grid,
   Image,
   MultiSelect,
   NumberInput,
   Stack,
+  Text,
   Textarea,
   TextInput,
   Title,
@@ -24,7 +25,6 @@ function characterCount(value: string) {
 export default function CreateRecipePage() {
   const router = useRouter();
 
-  // 1. State
   const [title, setTitle] = useState("");
   const [cuisine, setCuisine] = useState("");
   const [cookTime, setCookTime] = useState<number | string>("");
@@ -35,12 +35,12 @@ export default function CreateRecipePage() {
   const [instructions, setInstructions] = useState([""]);
   const [dietaryTags, setDietaryTags] = useState<string[]>([]);
   const [isSaving, setIsSaving] = useState(false);
+  const [hasSubmitted, setHasSubmitted] = useState(false);
   const [photo, setPhoto] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const createdRecipeId = useRef<string | null>(null);
   const uploadedPhotoPath = useRef<string | null>(null);
 
-  // 2. Ingredient and instruction functions
   function addInstruction() {
     setInstructions([...instructions, ""]);
   }
@@ -97,7 +97,6 @@ export default function CreateRecipePage() {
         characterCount(instruction) > 0 && characterCount(instruction) <= 1000,
     );
 
-  // 3. Photo selection, validation, and preview
   function handlePhotoChange(file: File | null) {
     if (file) {
       const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
@@ -134,9 +133,12 @@ export default function CreateRecipePage() {
     reader.readAsDataURL(file);
   }
 
-  // 4. Save recipe and upload photo
   async function handleSaveRecipe() {
-    if (!isFormValid || isSaving) return;
+    if (isSaving) return;
+
+    setHasSubmitted(true);
+
+    if (!isFormValid) return;
 
     setIsSaving(true);
 
@@ -186,7 +188,7 @@ export default function CreateRecipePage() {
       if (photo) {
         let filePath = uploadedPhotoPath.current;
 
-        // Only upload if this photo hasn't already been uploaded.
+        // Avoid uploading the same photo again when retrying a failed save.
         if (!filePath) {
           const extension = photo.name.split(".").pop()?.toLowerCase();
 
@@ -206,11 +208,9 @@ export default function CreateRecipePage() {
             return;
           }
 
-          // Remember the uploaded photo for future retries.
           uploadedPhotoPath.current = filePath;
         }
 
-        // Link the uploaded photo to the recipe.
         const { error: updateError } = await supabase
           .from("recipes")
           .update({ image_url: filePath })
@@ -237,7 +237,6 @@ export default function CreateRecipePage() {
     }
   }
 
-  // 5. JSX
   return (
     <Container size="sm" py="xl">
       <Title order={1} mb="lg">
@@ -252,8 +251,8 @@ export default function CreateRecipePage() {
           value={title}
           onChange={(event) => setTitle(event.currentTarget.value)}
           error={
-            title.length > 0 && characterCount(title) === 0
-              ? "Recipe title cannot be blank"
+            (hasSubmitted || title.length > 0) && characterCount(title) === 0
+              ? "Recipe title is required"
               : characterCount(title) > 100
                 ? "Recipe title cannot exceed 100 characters"
                 : undefined
@@ -324,63 +323,71 @@ export default function CreateRecipePage() {
         </Title>
 
         {ingredients.map((ingredient, index) => (
-          <Group key={index} align="start" grow>
-            <TextInput
-              label="Ingredient"
-              placeholder="e.g. Flour"
-              required
-              value={ingredient.name}
-              onChange={(event) =>
-                updateIngredient(index, "name", event.currentTarget.value)
-              }
-              error={
-                ingredient.name.length > 0 &&
-                characterCount(ingredient.name) === 0
-                  ? "Ingredient name cannot be blank"
-                  : characterCount(ingredient.name) > 60
-                    ? "Ingredient name cannot exceed 60 characters"
+          <Grid key={index} align="start">
+            <Grid.Col span={{ base: 12, sm: 5 }}>
+              <TextInput
+                label="Ingredient"
+                placeholder="e.g. Flour"
+                required
+                value={ingredient.name}
+                onChange={(event) =>
+                  updateIngredient(index, "name", event.currentTarget.value)
+                }
+                error={
+                  (hasSubmitted || ingredient.name.length > 0) &&
+                  characterCount(ingredient.name) === 0
+                    ? "Ingredient name is required"
+                    : characterCount(ingredient.name) > 60
+                      ? "Ingredient name cannot exceed 60 characters"
+                      : undefined
+                }
+              />
+            </Grid.Col>
+
+            <Grid.Col span={{ base: 6, sm: 2 }}>
+              <TextInput
+                label="Quantity"
+                placeholder="e.g. 2"
+                value={ingredient.quantity}
+                onChange={(event) =>
+                  updateIngredient(index, "quantity", event.currentTarget.value)
+                }
+                error={
+                  characterCount(ingredient.quantity) > 30
+                    ? "Quantity cannot exceed 30 characters"
                     : undefined
-              }
-            />
+                }
+              />
+            </Grid.Col>
 
-            <TextInput
-              label="Quantity"
-              placeholder="e.g. 2"
-              value={ingredient.quantity}
-              onChange={(event) =>
-                updateIngredient(index, "quantity", event.currentTarget.value)
-              }
-              error={
-                characterCount(ingredient.quantity) > 30
-                  ? "Quantity cannot exceed 30 characters"
-                  : undefined
-              }
-            />
+            <Grid.Col span={{ base: 6, sm: 2 }}>
+              <TextInput
+                label="Unit"
+                placeholder="e.g. cups"
+                value={ingredient.unit}
+                onChange={(event) =>
+                  updateIngredient(index, "unit", event.currentTarget.value)
+                }
+                error={
+                  characterCount(ingredient.unit) > 30
+                    ? "Unit cannot exceed 30 characters"
+                    : undefined
+                }
+              />
+            </Grid.Col>
 
-            <TextInput
-              label="Unit"
-              placeholder="e.g. cups"
-              value={ingredient.unit}
-              onChange={(event) =>
-                updateIngredient(index, "unit", event.currentTarget.value)
-              }
-              error={
-                characterCount(ingredient.unit) > 30
-                  ? "Unit cannot exceed 30 characters"
-                  : undefined
-              }
-            />
-
-            <Button
-              color="red"
-              variant="subtle"
-              mt={25}
-              onClick={() => removeIngredient(index)}
-              disabled={ingredients.length === 1}
-            >
-              Remove
-            </Button>
-          </Group>
+            <Grid.Col span={{ base: 12, sm: 3 }}>
+              <Button
+                color="red"
+                variant="subtle"
+                mt={{ base: 0, sm: 25 }}
+                onClick={() => removeIngredient(index)}
+                disabled={ingredients.length === 1}
+              >
+                Remove
+              </Button>
+            </Grid.Col>
+          </Grid>
         ))}
 
         <Button variant="outline" onClick={addIngredient}>
@@ -392,45 +399,55 @@ export default function CreateRecipePage() {
         </Title>
 
         {instructions.map((instruction, index) => (
-          <Group key={index} align="start" grow>
-            <Textarea
-              label={`Step ${index + 1}`}
-              placeholder="Describe what to do..."
-              required
-              autosize
-              minRows={2}
-              style={{ flex: 1 }}
-              value={instruction}
-              onChange={(event) =>
-                updateInstruction(index, event.currentTarget.value)
-              }
-              error={
-                instruction.length > 0 && characterCount(instruction) === 0
-                  ? "Cooking instructions cannot be blank"
-                  : characterCount(instruction) > 1000
-                    ? "Cooking instructions cannot exceed 1000 characters"
-                    : undefined
-              }
-            />
+          <Grid key={index} align="start">
+            <Grid.Col span={{ base: 12, sm: 10 }}>
+              <Textarea
+                label={`Step ${index + 1}`}
+                placeholder="Describe what to do..."
+                required
+                autosize
+                minRows={2}
+                value={instruction}
+                onChange={(event) =>
+                  updateInstruction(index, event.currentTarget.value)
+                }
+                error={
+                  (hasSubmitted || instruction.length > 0) &&
+                  characterCount(instruction) === 0
+                    ? "Cooking instruction is required"
+                    : characterCount(instruction) > 1000
+                      ? "Cooking instructions cannot exceed 1000 characters"
+                      : undefined
+                }
+              />
+            </Grid.Col>
 
-            <Button
-              color="red"
-              variant="subtle"
-              mt={35}
-              onClick={() => removeInstruction(index)}
-              disabled={instructions.length === 1}
-            >
-              Remove
-            </Button>
-          </Group>
+            <Grid.Col span={{ base: 12, sm: 2 }}>
+              <Button
+                color="red"
+                variant="subtle"
+                mt={{ base: 0, sm: 35 }}
+                onClick={() => removeInstruction(index)}
+                disabled={instructions.length === 1}
+              >
+                Remove
+              </Button>
+            </Grid.Col>
+          </Grid>
         ))}
 
         <Button variant="outline" onClick={addInstruction}>
           + Add Step
         </Button>
 
+        {hasSubmitted && !isFormValid && (
+          <Text size="sm" c="red">
+            Please correct the highlighted fields before saving your recipe.
+          </Text>
+        )}
+
         <Button
-          disabled={!isFormValid || isSaving}
+          disabled={isSaving}
           loading={isSaving}
           onClick={handleSaveRecipe}
         >
