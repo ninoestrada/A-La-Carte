@@ -17,6 +17,10 @@ import {
   Title,
 } from "@mantine/core";
 
+function characterCount(value: string) {
+  return [...value.trim()].length;
+}
+
 export default function CreateRecipePage() {
   const router = useRouter();
 
@@ -71,10 +75,27 @@ export default function CreateRecipePage() {
     );
   }
 
+  const isCookTimeValid =
+    cookTime === "" ||
+    (typeof cookTime === "number" &&
+      Number.isInteger(cookTime) &&
+      cookTime > 0);
+
   const isFormValid =
-    title.trim().length > 0 &&
-    ingredients.every((ingredient) => ingredient.name.trim().length > 0) &&
-    instructions.every((instruction) => instruction.trim().length > 0);
+    characterCount(title) > 0 &&
+    characterCount(title) <= 100 &&
+    isCookTimeValid &&
+    ingredients.every(
+      (ingredient) =>
+        characterCount(ingredient.name) > 0 &&
+        characterCount(ingredient.name) <= 60 &&
+        characterCount(ingredient.quantity) <= 30 &&
+        characterCount(ingredient.unit) <= 30,
+    ) &&
+    instructions.every(
+      (instruction) =>
+        characterCount(instruction) > 0 && characterCount(instruction) <= 1000,
+    );
 
   // 3. Photo selection, validation, and preview
   function handlePhotoChange(file: File | null) {
@@ -230,6 +251,13 @@ export default function CreateRecipePage() {
           required
           value={title}
           onChange={(event) => setTitle(event.currentTarget.value)}
+          error={
+            title.length > 0 && characterCount(title) === 0
+              ? "Recipe title cannot be blank"
+              : characterCount(title) > 100
+                ? "Recipe title cannot exceed 100 characters"
+                : undefined
+          }
         />
 
         <FileInput
@@ -266,6 +294,11 @@ export default function CreateRecipePage() {
           allowDecimal={false}
           value={cookTime}
           onChange={setCookTime}
+          error={
+            !isCookTimeValid
+              ? "Cooking time must be a positive whole number"
+              : undefined
+          }
         />
 
         <MultiSelect
@@ -291,7 +324,7 @@ export default function CreateRecipePage() {
         </Title>
 
         {ingredients.map((ingredient, index) => (
-          <Group key={index} align="end" grow>
+          <Group key={index} align="start" grow>
             <TextInput
               label="Ingredient"
               placeholder="e.g. Flour"
@@ -299,6 +332,14 @@ export default function CreateRecipePage() {
               value={ingredient.name}
               onChange={(event) =>
                 updateIngredient(index, "name", event.currentTarget.value)
+              }
+              error={
+                ingredient.name.length > 0 &&
+                characterCount(ingredient.name) === 0
+                  ? "Ingredient name cannot be blank"
+                  : characterCount(ingredient.name) > 60
+                    ? "Ingredient name cannot exceed 60 characters"
+                    : undefined
               }
             />
 
@@ -309,6 +350,11 @@ export default function CreateRecipePage() {
               onChange={(event) =>
                 updateIngredient(index, "quantity", event.currentTarget.value)
               }
+              error={
+                characterCount(ingredient.quantity) > 30
+                  ? "Quantity cannot exceed 30 characters"
+                  : undefined
+              }
             />
 
             <TextInput
@@ -318,11 +364,17 @@ export default function CreateRecipePage() {
               onChange={(event) =>
                 updateIngredient(index, "unit", event.currentTarget.value)
               }
+              error={
+                characterCount(ingredient.unit) > 30
+                  ? "Unit cannot exceed 30 characters"
+                  : undefined
+              }
             />
 
             <Button
               color="red"
               variant="subtle"
+              mt={25}
               onClick={() => removeIngredient(index)}
               disabled={ingredients.length === 1}
             >
@@ -340,7 +392,7 @@ export default function CreateRecipePage() {
         </Title>
 
         {instructions.map((instruction, index) => (
-          <Group key={index} align="end">
+          <Group key={index} align="start" grow>
             <Textarea
               label={`Step ${index + 1}`}
               placeholder="Describe what to do..."
@@ -352,11 +404,19 @@ export default function CreateRecipePage() {
               onChange={(event) =>
                 updateInstruction(index, event.currentTarget.value)
               }
+              error={
+                instruction.length > 0 && characterCount(instruction) === 0
+                  ? "Cooking instructions cannot be blank"
+                  : characterCount(instruction) > 1000
+                    ? "Cooking instructions cannot exceed 1000 characters"
+                    : undefined
+              }
             />
 
             <Button
               color="red"
               variant="subtle"
+              mt={35}
               onClick={() => removeInstruction(index)}
               disabled={instructions.length === 1}
             >
