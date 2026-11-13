@@ -25,7 +25,7 @@ export default function RecipeCarousel({
 }: RecipeCarouselProps) {
   return (
     <section>
-      <Title order={2}>{title}</Title>
+      {title && <Title order={2}>{title}</Title>}
 
       <Carousel
         slideSize="250px"

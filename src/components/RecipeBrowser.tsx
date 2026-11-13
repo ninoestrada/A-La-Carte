@@ -1,8 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { ActionIcon, Group, Tooltip } from "@mantine/core";
+import { IconList, IconPhoto } from "@tabler/icons-react";
+
 import Navbar from "@/components/Navbar";
 import RecipeCarousel from "@/components/RecipeCarousel";
+import RecipeMenu from "@/components/RecipeMenu";
 
 interface Recipe {
   id: string;
@@ -23,6 +27,8 @@ interface RecipeBrowserProps {
   myRecipesLoadError: boolean;
 }
 
+type View = "menu" | "gallery";
+
 export default function RecipeBrowser({
   recipes,
   myRecipes,
@@ -31,6 +37,8 @@ export default function RecipeBrowser({
 }: RecipeBrowserProps) {
   const [search, setSearch] = useState("");
   const [searchOpened, setSearchOpened] = useState(false);
+  const [globalView, setGlobalView] = useState<View>("menu");
+  const [viewOverrides, setViewOverrides] = useState<Record<string, View>>({});
 
   const normalizedSearch = search.trim().toLowerCase();
 
@@ -46,6 +54,7 @@ export default function RecipeBrowser({
 
     return titleMatches || cuisineMatches || ingredientMatches;
   });
+
   const italianRecipes = recipes.filter(
     (recipe) => recipe.cuisine === "Italian",
   );
@@ -59,6 +68,20 @@ export default function RecipeBrowser({
     recipe.dietary_tags?.includes("vegetarian"),
   );
 
+  const sections = [
+    ...(isSignedIn && !myRecipesLoadError && myRecipes.length > 0
+      ? [{ id: "my-recipes", title: "My Recipes", recipes: myRecipes }]
+      : []),
+    { id: "quick", title: "Quick & Easy", recipes: quickRecipes },
+    { id: "italian", title: "Italian", recipes: italianRecipes },
+    { id: "vegetarian", title: "Vegetarian", recipes: vegetarianRecipes },
+  ];
+
+  const changeGlobalView = (view: View) => {
+    setGlobalView(view);
+    setViewOverrides({});
+  };
+
   return (
     <>
       <Navbar
@@ -68,7 +91,7 @@ export default function RecipeBrowser({
         setSearchOpened={setSearchOpened}
       />
 
-      <main style={{ padding: 32 }}>
+      <main style={{ padding: "24px 16px" }}>
         {normalizedSearch ? (
           searchResults.length > 0 ? (
             <RecipeCarousel title="Search Results" recipes={searchResults} />
@@ -80,28 +103,51 @@ export default function RecipeBrowser({
           )
         ) : (
           <>
-            {isSignedIn && (
-              <section>
-                {myRecipesLoadError ? (
-                  <>
-                    <h2>My Recipes</h2>
-                    <p>Unable to load your recipes. Please try again later.</p>
-                  </>
-                ) : myRecipes.length > 0 ? (
-                  <RecipeCarousel title="My Recipes" recipes={myRecipes} />
-                ) : (
-                  <>
-                    <h2>My Recipes</h2>
-                    <p>You haven&apos;t created any recipes yet.</p>
-                  </>
-                )}
-              </section>
+            <Group justify="flex-start" gap={4} mb="md">
+              <Tooltip label="Show all sections as menu">
+                <ActionIcon
+                  variant={globalView === "menu" ? "filled" : "subtle"}
+                  color="dark"
+                  size="lg"
+                  aria-label="Show all sections as menu"
+                  onClick={() => changeGlobalView("menu")}
+                >
+                  <IconList size={18} />
+                </ActionIcon>
+              </Tooltip>
+
+              <Tooltip label="Show all sections as gallery">
+                <ActionIcon
+                  variant={globalView === "gallery" ? "filled" : "subtle"}
+                  color="dark"
+                  size="lg"
+                  aria-label="Show all sections as gallery"
+                  onClick={() => changeGlobalView("gallery")}
+                >
+                  <IconPhoto size={18} />
+                </ActionIcon>
+              </Tooltip>
+            </Group>
+
+            {isSignedIn && myRecipesLoadError && (
+              <p>Unable to load My Recipes. Please try again later.</p>
             )}
-            <RecipeCarousel title="Quick & Easy" recipes={quickRecipes} />
 
-            <RecipeCarousel title="Italian" recipes={italianRecipes} />
+            {isSignedIn && !myRecipesLoadError && myRecipes.length === 0 && (
+              <p>You haven&apos;t created any recipes yet.</p>
+            )}
 
-            <RecipeCarousel title="Vegetarian" recipes={vegetarianRecipes} />
+            <RecipeMenu
+              sections={sections}
+              globalView={globalView}
+              viewOverrides={viewOverrides}
+              onSectionViewChange={(id, view) =>
+                setViewOverrides((previous) => ({
+                  ...previous,
+                  [id]: view,
+                }))
+              }
+            />
           </>
         )}
       </main>

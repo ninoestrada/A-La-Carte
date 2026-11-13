@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Modal, Button, Title, Text, Group } from "@mantine/core";
+import { Modal, Button, Title, Text, Group, Box, Stack } from "@mantine/core";
 import { createClient } from "@/lib/supabase/client";
 
 const supabase = createClient();
@@ -82,7 +82,6 @@ export default function RecipeModal({
         content: {
           backgroundColor: "#181818",
           color: "white",
-          overflow: "hidden",
         },
         body: {
           padding: 0,
@@ -90,18 +89,18 @@ export default function RecipeModal({
       }}
     >
       {/* Hero image */}
-      <div
+      <Box
+        pos="relative"
+        h={{ base: 260, sm: 350 }}
         style={{
-          position: "relative",
-          height: 350,
           backgroundImage: `
-          linear-gradient(
-            to bottom,
-            rgba(0, 0, 0, 0) 40%,
-            rgba(24, 24, 24, 1) 100%
-          ),
-          url(${image})
-        `,
+            linear-gradient(
+              to bottom,
+              rgba(0, 0, 0, 0) 40%,
+              rgba(24, 24, 24, 1) 100%
+            ),
+            url(${image})
+          `,
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
@@ -126,25 +125,25 @@ export default function RecipeModal({
         >
           ×
         </button>
+      </Box>
 
-        {/* Title + actions over image */}
-        <div
-          style={{
-            position: "absolute",
-            left: 32,
-            right: 32,
-            bottom: 20,
-          }}
-        >
-          <Title order={1} c="white">
+      {/* Recipe title and actions */}
+      <Box
+        px={{ base: "md", sm: "xl" }}
+        pt={{ base: "md", sm: 0 }}
+        pb="md"
+        bg="#181818"
+      >
+        <Stack gap="md">
+          <Title order={1} c="white" fz={{ base: 24, sm: 32 }}>
             {title}
           </Title>
 
-          <Group mt="md">
-            <Button component={Link} href={`/recipes/${id}`}>
-              View Recipe
-            </Button>
+          <Button component={Link} href={`/recipes/${id}`} fullWidth>
+            View Recipe
+          </Button>
 
+          <Group grow gap="sm">
             <Button variant="outline" color="gray">
               +
             </Button>
@@ -157,8 +156,8 @@ export default function RecipeModal({
               👎
             </Button>
           </Group>
-        </div>
-      </div>
+        </Stack>
+      </Box>
 
       {/* Recipe information */}
       <div style={{ padding: "8px 32px 32px" }}>
