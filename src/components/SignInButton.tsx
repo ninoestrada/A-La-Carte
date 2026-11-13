@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "@mantine/core";
+import { ActionIcon, Box, Loader, Menu, Tooltip } from "@mantine/core";
+import { IconChefHat } from "@tabler/icons-react";
 import { createClient } from "@/lib/supabase/client";
 
 type AuthProvider = "google" | "github";
@@ -67,24 +68,63 @@ export default function SignInButton({ provider }: SignInButtonProps) {
     router.refresh();
   }
 
+  if (loading) {
+    return <Loader size="sm" color="gray" />;
+  }
+
+  if (!isSignedIn) {
+    return (
+      <Tooltip label="Sign in">
+        <ActionIcon
+          variant="subtle"
+          color="gray"
+          size="xl"
+          aria-label="Sign in"
+          onClick={handleSignIn}
+        >
+          <Box pos="relative" w={28} h={28}>
+            <IconChefHat size={28} stroke={1.7} />
+
+            <Box
+              pos="absolute"
+              top={13}
+              left={-2}
+              w={32}
+              h={2}
+              bg="currentColor"
+              style={{
+                transform: "rotate(-45deg)",
+                pointerEvents: "none",
+              }}
+            />
+          </Box>
+        </ActionIcon>
+      </Tooltip>
+    );
+  }
+
   return (
-    <Button
-      variant="subtle"
-      color="gray"
-      size="sm"
-      radius="sm"
-      loading={loading}
-      onClick={isSignedIn ? handleSignOut : handleSignIn}
-      styles={{
-        root: {
-          backgroundColor: "#292929",
-          color: "#ffffff",
-          fontWeight: 500,
-          whiteSpace: "nowrap",
-        },
-      }}
-    >
-      {isSignedIn ? "Sign Out" : "Sign In"}
-    </Button>
+    <Menu position="bottom-end" shadow="md" width={160}>
+      <Menu.Target>
+        <Tooltip label="Account">
+          <ActionIcon
+            variant="subtle"
+            color="gray"
+            size="xl"
+            aria-label="Account menu"
+          >
+            <IconChefHat size={28} stroke={1.7} />
+          </ActionIcon>
+        </Tooltip>
+      </Menu.Target>
+
+      <Menu.Dropdown>
+        <Menu.Label>Account</Menu.Label>
+
+        <Menu.Item color="red" onClick={handleSignOut}>
+          Sign Out
+        </Menu.Item>
+      </Menu.Dropdown>
+    </Menu>
   );
 }

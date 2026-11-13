@@ -21,7 +21,7 @@
   font-family: Georgia, serif;
   font-size: 17px;
   text-align: left;
-  cursor: pointer;
+  cursor: url("/icons/whisk.svg") 13 3, pointer;
   transition: background-color 150ms ease;
 }
 

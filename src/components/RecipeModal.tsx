@@ -2,8 +2,28 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Modal, Button, Title, Text, Group, Box, Stack } from "@mantine/core";
+import classes from "./RecipeModal.module.css";
+import {
+  Modal,
+  Button,
+  Title,
+  Text,
+  Group,
+  Box,
+  Stack,
+  ActionIcon,
+  Tooltip,
+  Divider,
+  Menu,
+} from "@mantine/core";
 import { createClient } from "@/lib/supabase/client";
+import {
+  IconHeart,
+  IconHeartBroken,
+  IconShare3,
+  IconBookmark,
+  IconDots,
+} from "@tabler/icons-react";
 
 const supabase = createClient();
 
@@ -62,7 +82,7 @@ export default function RecipeModal({
       setIngredients(data ?? []);
     }
 
-    loadIngredients();
+    void loadIngredients();
 
     return () => {
       cancelled = true;
@@ -127,7 +147,7 @@ export default function RecipeModal({
         </button>
       </Box>
 
-      {/* Recipe title and actions */}
+      {/* Recipe title and primary action */}
       <Box
         px={{ base: "md", sm: "xl" }}
         pt={{ base: "md", sm: 0 }}
@@ -142,37 +162,116 @@ export default function RecipeModal({
           <Button component={Link} href={`/recipes/${id}`} fullWidth>
             View Recipe
           </Button>
-
-          <Group grow gap="sm">
-            <Button variant="outline" color="gray">
-              +
-            </Button>
-
-            <Button variant="outline" color="gray">
-              👍
-            </Button>
-
-            <Button variant="outline" color="gray">
-              👎
-            </Button>
-          </Group>
         </Stack>
       </Box>
 
       {/* Recipe information */}
-      <div style={{ padding: "8px 32px 32px" }}>
-        <Group gap="md">
-          {cuisine && <Text c="white">{cuisine}</Text>}
+      <Box px={{ base: "md", sm: "xl" }} pb="xl">
+        <Group justify="space-between" align="center" gap="sm" wrap="wrap">
+          {/* Left: cuisine, cooking time, dietary tags */}
+          <Group gap="sm" wrap="wrap">
+            {cuisine && (
+              <Text className={classes.recipeMetadata}>{cuisine}</Text>
+            )}
 
-          {cookTime !== null && <Text c="white">{cookTime} min</Text>}
+            {cookTime !== null && (
+              <Text className={classes.recipeMetadata}>{cookTime} min</Text>
+            )}
 
-          {dietaryTags?.map((tag) => (
-            <Text key={tag} c="white">
-              {tag}
-            </Text>
-          ))}
+            {dietaryTags?.map((tag) => (
+              <Text key={tag} className={classes.recipeMetadata}>
+                {tag}
+              </Text>
+            ))}
+          </Group>
+
+          {/* Right: compact reactions and more options */}
+          <Group gap={8} wrap="nowrap">
+            <Box w={150}>
+              <Group
+                gap={0}
+                wrap="nowrap"
+                bg="#292929"
+                style={{
+                  borderRadius: 999,
+                  overflow: "hidden",
+                }}
+              >
+                <Tooltip label="I love this">
+                  <Button
+                    variant="subtle"
+                    color="gray"
+                    size="compact-sm"
+                    radius={0}
+                    style={{ flex: 1, minWidth: 0 }}
+                    aria-label="I love this"
+                    leftSection={<IconHeart size={16} color="#c75b5b" />}
+                  >
+                    —
+                  </Button>
+                </Tooltip>
+
+                <Divider orientation="vertical" color="#555" />
+
+                <Tooltip label="Not for me">
+                  <Button
+                    variant="subtle"
+                    color="gray"
+                    size="compact-sm"
+                    radius={0}
+                    style={{ flex: 1, minWidth: 0 }}
+                    aria-label="Not for me"
+                    leftSection={<IconHeartBroken size={16} color="#c75b5b" />}
+                  >
+                    —
+                  </Button>
+                </Tooltip>
+              </Group>
+
+              {/* Reaction ratio bar */}
+              <Tooltip label="No reactions yet">
+                <Box mt={4} h={3} bg="#555" style={{ borderRadius: 999 }} />
+              </Tooltip>
+            </Box>
+
+            {/* Share and Save menu */}
+            <Menu position="bottom-end" withinPortal>
+              <Menu.Target>
+                <Tooltip label="More options">
+                  <ActionIcon
+                    variant="subtle"
+                    color="gray"
+                    size="md"
+                    radius="xl"
+                    bg="#292929"
+                    aria-label="More options"
+                  >
+                    <IconDots size={18} />
+                  </ActionIcon>
+                </Tooltip>
+              </Menu.Target>
+
+              <Menu.Dropdown>
+                <Menu.Item
+                  leftSection={<IconShare3 size={16} />}
+                  onClick={() => {
+                    void navigator.clipboard.writeText(
+                      `${window.location.origin}/recipes/${id}`,
+                    );
+                  }}
+                >
+                  Copy recipe link
+                </Menu.Item>
+
+                <Menu.Item leftSection={<IconBookmark size={16} />} disabled>
+                  Save recipe
+                </Menu.Item>
+              </Menu.Dropdown>
+            </Menu>
+          </Group>
         </Group>
 
+        {/* Ingredients */}
         <Title order={3} mt="xl" c="white">
           Ingredients
         </Title>
@@ -190,7 +289,7 @@ export default function RecipeModal({
             <Text c="dimmed">No ingredients available.</Text>
           )}
         </div>
-      </div>
+      </Box>
     </Modal>
   );
 }
