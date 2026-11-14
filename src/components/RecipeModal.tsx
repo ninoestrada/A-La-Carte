@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import classes from "./RecipeModal.module.css";
 import {
   Modal,
   Button,
@@ -14,16 +13,20 @@ import {
   ActionIcon,
   Tooltip,
   Divider,
-  Menu,
+  Popover,
 } from "@mantine/core";
 import { createClient } from "@/lib/supabase/client";
+import { cormorant } from "@/lib/fonts";
 import {
+  IconBook2,
   IconHeart,
   IconHeartBroken,
-  IconShare3,
+  IconHearts,
   IconBookmark,
-  IconDots,
+  IconX,
 } from "@tabler/icons-react";
+import classes from "./RecipeModal.module.css";
+import { IngredientIllustration } from "./IngredientIllustration";
 
 const supabase = createClient();
 
@@ -45,6 +48,8 @@ interface RecipeModalProps {
   dietaryTags: string[] | null;
 }
 
+type Reaction = "dislike" | "like" | "love" | null;
+
 export default function RecipeModal({
   opened,
   onClose,
@@ -56,23 +61,47 @@ export default function RecipeModal({
   dietaryTags,
 }: RecipeModalProps) {
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
+  const [reaction, setReaction] = useState<Reaction>(null);
+  const [reactionOpened, setReactionOpened] = useState(false);
+  const reactionCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  function cancelReactionClose() {
+    if (reactionCloseTimer.current) {
+      clearTimeout(reactionCloseTimer.current);
+      reactionCloseTimer.current = null;
+    }
+  }
+
+  function scheduleReactionClose() {
+    cancelReactionClose();
+
+    reactionCloseTimer.current = setTimeout(() => {
+      setReactionOpened(false);
+    }, 180);
+  }
 
   useEffect(() => {
-    if (!opened) {
-      return;
-    }
+    return () => {
+      if (reactionCloseTimer.current) {
+        clearTimeout(reactionCloseTimer.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!opened) return;
 
     let cancelled = false;
 
     async function loadIngredients() {
+      setIngredients([]);
+
       const { data, error } = await supabase
         .from("recipe_ingredients")
         .select("id, name, quantity, unit")
         .eq("recipe_id", id);
 
-      if (cancelled) {
-        return;
-      }
+      if (cancelled) return;
 
       if (error) {
         console.error("Error loading ingredients:", error);
@@ -89,6 +118,11 @@ export default function RecipeModal({
     };
   }, [opened, id]);
 
+  function selectReaction(value: Reaction) {
+    setReaction(value);
+    setReactionOpened(false);
+  }
+
   return (
     <Modal
       opened={opened}
@@ -98,197 +132,208 @@ export default function RecipeModal({
       withCloseButton={false}
       padding={0}
       radius="md"
-      styles={{
-        content: {
-          backgroundColor: "#181818",
-          color: "white",
-        },
-        body: {
-          padding: 0,
-        },
+      classNames={{ content: classes.modalContent, body: classes.modalBody }}
+      transitionProps={{
+        transition: "fade-up",
+        duration: 300,
+        timingFunction: "ease",
       }}
+      title={title}
+      styles={{ header: { display: "none" } }}
     >
-      {/* Hero image */}
-      <Box
-        pos="relative"
-        h={{ base: 260, sm: 350 }}
-        style={{
-          backgroundImage: `
-            linear-gradient(
-              to bottom,
-              rgba(0, 0, 0, 0) 40%,
-              rgba(24, 24, 24, 1) 100%
-            ),
-            url(${image})
-          `,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      >
-        {/* Close button */}
-        <button
+      <Box className={classes.hero}>
+        {image && (
+          <div
+            className={classes.heroImage}
+            style={{ backgroundImage: `url("${image}")` }}
+          />
+        )}
+
+        <div className={classes.heroGradient} />
+
+        <ActionIcon
+          className={classes.closeButton}
           onClick={onClose}
           aria-label="Close recipe preview"
-          style={{
-            position: "absolute",
-            top: 16,
-            right: 16,
-            width: 40,
-            height: 40,
-            borderRadius: "50%",
-            border: "none",
-            background: "#181818",
-            color: "white",
-            fontSize: 24,
-            cursor: "pointer",
-          }}
+          variant="filled"
+          radius="xl"
+          size="lg"
         >
-          ×
-        </button>
-      </Box>
+          <IconX size={20} />
+        </ActionIcon>
 
-      {/* Recipe title and primary action */}
-      <Box
-        px={{ base: "md", sm: "xl" }}
-        pt={{ base: "md", sm: 0 }}
-        pb="md"
-        bg="#181818"
-      >
-        <Stack gap="md">
-          <Title order={1} c="white" fz={{ base: 24, sm: 32 }}>
+        <div className={classes.heroContent}>
+          <Title
+            order={2}
+            className={`${cormorant.className} ${classes.recipeTitle}`}
+          >
             {title}
           </Title>
 
-          <Button component={Link} href={`/recipes/${id}`} fullWidth>
-            View Recipe
-          </Button>
-        </Stack>
-      </Box>
+          <Group gap="sm" align="center" wrap="wrap">
+            <Button
+              component={Link}
+              href={`/recipes/${id}`}
+              leftSection={<IconBook2 size={18} />}
+              className={`${cormorant.className} ${classes.viewButton}`}
+              radius="sm"
+            >
+              View Recipe
+            </Button>
 
-      {/* Recipe information */}
-      <Box px={{ base: "md", sm: "xl" }} pb="xl">
-        <Group justify="space-between" align="center" gap="sm" wrap="wrap">
-          {/* Left: cuisine, cooking time, dietary tags */}
-          <Group gap="sm" wrap="wrap">
-            {cuisine && (
-              <Text className={classes.recipeMetadata}>{cuisine}</Text>
-            )}
+            <Tooltip label="Save to My Recipes — coming soon">
+              <span>
+                <ActionIcon
+                  className={`${classes.heroAction} ${classes.saveAction}`}
+                  aria-label="Save to My Recipes — coming soon"
+                  radius="xl"
+                  size="lg"
+                  disabled
+                >
+                  <IconBookmark size={19} />
+                </ActionIcon>
+              </span>
+            </Tooltip>
 
-            {cookTime !== null && (
-              <Text className={classes.recipeMetadata}>{cookTime} min</Text>
-            )}
-
-            {dietaryTags?.map((tag) => (
-              <Text key={tag} className={classes.recipeMetadata}>
-                {tag}
-              </Text>
-            ))}
-          </Group>
-
-          {/* Right: compact reactions and more options */}
-          <Group gap={8} wrap="nowrap">
-            <Box w={150}>
-              <Group
-                gap={0}
-                wrap="nowrap"
-                bg="#292929"
-                style={{
-                  borderRadius: 999,
-                  overflow: "hidden",
-                }}
-              >
-                <Tooltip label="I love this">
-                  <Button
-                    variant="subtle"
-                    color="gray"
-                    size="compact-sm"
-                    radius={0}
-                    style={{ flex: 1, minWidth: 0 }}
-                    aria-label="I love this"
-                    leftSection={<IconHeart size={16} color="#c75b5b" />}
-                  >
-                    —
-                  </Button>
-                </Tooltip>
-
-                <Divider orientation="vertical" color="#555" />
-
-                <Tooltip label="Not for me">
-                  <Button
-                    variant="subtle"
-                    color="gray"
-                    size="compact-sm"
-                    radius={0}
-                    style={{ flex: 1, minWidth: 0 }}
-                    aria-label="Not for me"
-                    leftSection={<IconHeartBroken size={16} color="#c75b5b" />}
-                  >
-                    —
-                  </Button>
-                </Tooltip>
-              </Group>
-
-              {/* Reaction ratio bar */}
-              <Tooltip label="No reactions yet">
-                <Box mt={4} h={3} bg="#555" style={{ borderRadius: 999 }} />
-              </Tooltip>
-            </Box>
-
-            {/* Share and Save menu */}
-            <Menu position="bottom-end" withinPortal>
-              <Menu.Target>
-                <Tooltip label="More options">
+            <Popover
+              opened={reactionOpened}
+              onChange={setReactionOpened}
+              position="top-start"
+              offset={12}
+              withArrow
+              shadow="md"
+              withinPortal
+            >
+              <Popover.Target>
+                <Tooltip label="React to this recipe" disabled={reactionOpened}>
                   <ActionIcon
-                    variant="subtle"
-                    color="gray"
-                    size="md"
+                    className={classes.heroAction}
                     radius="xl"
-                    bg="#292929"
-                    aria-label="More options"
+                    size="lg"
+                    aria-label="React to this recipe"
+                    aria-expanded={reactionOpened}
+                    onMouseEnter={() => {
+                      cancelReactionClose();
+                      setReactionOpened(true);
+                    }}
+                    onMouseLeave={scheduleReactionClose}
+                    onClick={() => {
+                      cancelReactionClose();
+                      setReactionOpened((value) => !value);
+                    }}
                   >
-                    <IconDots size={18} />
+                    {reaction === "dislike" ? (
+                      <IconHeartBroken size={19} />
+                    ) : reaction === "love" ? (
+                      <IconHearts size={19} />
+                    ) : (
+                      <IconHeart size={19} />
+                    )}
                   </ActionIcon>
                 </Tooltip>
-              </Menu.Target>
+              </Popover.Target>
 
-              <Menu.Dropdown>
-                <Menu.Item
-                  leftSection={<IconShare3 size={16} />}
-                  onClick={() => {
-                    void navigator.clipboard.writeText(
-                      `${window.location.origin}/recipes/${id}`,
-                    );
-                  }}
-                >
-                  Copy recipe link
-                </Menu.Item>
+              <Popover.Dropdown
+                className={classes.reactionDropdown}
+                onMouseEnter={cancelReactionClose}
+                onMouseLeave={scheduleReactionClose}
+              >
+                <Group gap="xs" wrap="nowrap">
+                  <Tooltip label="Not for me">
+                    <ActionIcon
+                      className={classes.reactionOption}
+                      aria-label="Not for me"
+                      onClick={() => selectReaction("dislike")}
+                    >
+                      <IconHeartBroken size={20} />
+                    </ActionIcon>
+                  </Tooltip>
 
-                <Menu.Item leftSection={<IconBookmark size={16} />} disabled>
-                  Save recipe
-                </Menu.Item>
-              </Menu.Dropdown>
-            </Menu>
+                  <Tooltip label="I like this">
+                    <ActionIcon
+                      className={classes.reactionOption}
+                      aria-label="I like this"
+                      onClick={() => selectReaction("like")}
+                    >
+                      <IconHeart size={20} />
+                    </ActionIcon>
+                  </Tooltip>
+
+                  <Tooltip label="Love this">
+                    <ActionIcon
+                      className={classes.reactionOption}
+                      aria-label="Love this"
+                      onClick={() => selectReaction("love")}
+                    >
+                      <IconHearts size={20} />
+                    </ActionIcon>
+                  </Tooltip>
+                </Group>
+              </Popover.Dropdown>
+            </Popover>
           </Group>
+        </div>
+      </Box>
+
+      <Box className={classes.recipeDetails}>
+        <Group gap="sm" wrap="wrap">
+          {cuisine && <Text className={classes.recipeMetadata}>{cuisine}</Text>}
+
+          {cookTime !== null && (
+            <Text className={classes.recipeMetadata}>{cookTime} min</Text>
+          )}
+
+          {dietaryTags?.map((tag) => (
+            <Text key={tag} className={classes.recipeMetadata}>
+              {tag}
+            </Text>
+          ))}
         </Group>
 
-        {/* Ingredients */}
-        <Title order={3} mt="xl" c="white">
+        <Divider className={classes.divider} />
+
+        <Title
+          order={3}
+          className={`${cormorant.className} ${classes.ingredientsTitle}`}
+        >
           Ingredients
         </Title>
 
-        <div style={{ marginTop: 8 }}>
+        <Stack gap="md" mt="md">
           {ingredients.length > 0 ? (
             ingredients.map((ingredient) => (
-              <Text key={ingredient.id} c="gray.3">
-                {ingredient.quantity && `${ingredient.quantity} `}
-                {ingredient.unit && `${ingredient.unit} `}
-                {ingredient.name}
-              </Text>
+              <Group
+                key={ingredient.id}
+                gap="md"
+                wrap="nowrap"
+                align="center"
+                className={classes.ingredientRow}
+              >
+                <Box className={classes.ingredientIcon}>
+                  <IngredientIllustration name={ingredient.name} />
+                </Box>
+
+                <Box>
+                  <Text
+                    className={`${cormorant.className} ${classes.ingredient}`}
+                  >
+                    {ingredient.name}
+                  </Text>
+
+                  <Text className={classes.ingredientQuantity}>
+                    {[ingredient.quantity, ingredient.unit]
+                      .filter(Boolean)
+                      .join(" ")}
+                  </Text>
+                </Box>
+              </Group>
             ))
           ) : (
-            <Text c="dimmed">No ingredients available.</Text>
+            <Text className={classes.emptyIngredients}>
+              No ingredients available.
+            </Text>
           )}
-        </div>
+        </Stack>
       </Box>
     </Modal>
   );

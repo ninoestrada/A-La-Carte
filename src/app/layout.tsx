@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { MantineProvider } from "@mantine/core";
+import { MantineProvider, createTheme } from "@mantine/core";
+import { cormorant } from "@/lib/fonts";
+
 import "@mantine/core/styles.css";
 import "./globals.css";
 
@@ -12,6 +14,21 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+});
+
+const theme = createTheme({
+  components: {
+    Tooltip: {
+      styles: {
+        tooltip: {
+          fontFamily: cormorant.style.fontFamily,
+          fontSize: "17px",
+          fontWeight: 500,
+          letterSpacing: "0.02em",
+        },
+      },
+    },
+  },
 });
 
 export const metadata: Metadata = {
@@ -27,7 +44,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <MantineProvider>{children}</MantineProvider>
+        <MantineProvider theme={theme}>{children}</MantineProvider>
       </body>
     </html>
   );
