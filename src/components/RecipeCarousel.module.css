@@ -2,7 +2,6 @@
   position: relative;
 }
 
-/* Hide arrows by default */
 .carousel :global(.mantine-Carousel-control) {
   opacity: 0;
   transition:
@@ -11,14 +10,12 @@
     background-color 200ms ease;
 }
 
-/* Make the controls overlay cover the carousel height */
 .carousel :global(.mantine-Carousel-controls) {
   position: absolute;
   inset: 0;
   pointer-events: none;
 }
 
-/* Each arrow gets a full-height vertical hover zone */
 .carousel :global(.mantine-Carousel-control) {
   position: relative;
   pointer-events: auto;
@@ -34,7 +31,17 @@
   transform: translate(-50%, -50%);
 }
 
-/* Reveal only the arrow whose vertical zone is hovered */
+.carousel :global(.mantine-Carousel-viewport) {
+  padding: 16px 12px 24px;
+}
+
+/* Keep each slide aligned with its card */
+.carousel :global(.mantine-Carousel-slide) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .carousel :global(.mantine-Carousel-control:hover),
 .carousel :global(.mantine-Carousel-control:focus-visible) {
   opacity: 1;

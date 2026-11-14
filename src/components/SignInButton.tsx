@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { ActionIcon, Box, Loader, Menu, Tooltip } from "@mantine/core";
 import { IconChefHat } from "@tabler/icons-react";
 import { createClient } from "@/lib/supabase/client";
+import classes from "./SignInButton.module.css";
 
 type AuthProvider = "google" | "github";
 
@@ -77,7 +78,8 @@ export default function SignInButton({ provider }: SignInButtonProps) {
       <Tooltip label="Sign in">
         <ActionIcon
           variant="subtle"
-          color="gray"
+          color="dark"
+          className={classes.chefIcon}
           size="xl"
           aria-label="Sign in"
           onClick={handleSignIn}
@@ -109,7 +111,8 @@ export default function SignInButton({ provider }: SignInButtonProps) {
         <Tooltip label="Account">
           <ActionIcon
             variant="subtle"
-            color="gray"
+            color="dark"
+            className={classes.chefIcon}
             size="xl"
             aria-label="Account menu"
           >

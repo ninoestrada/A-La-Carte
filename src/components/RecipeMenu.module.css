@@ -9,7 +9,7 @@
   box-sizing: border-box;
   box-shadow:
     0 2px 4px rgba(48, 40, 32, 0.08),
-    0 12px 24px rgba(48, 40, 32, 0.10),
+    0 12px 24px rgba(48, 40, 32, 0.1),
     0 28px 60px rgba(48, 40, 32, 0.08);
 }
 
@@ -123,5 +123,28 @@
 @media (prefers-reduced-motion: reduce) {
   .viewTransition {
     animation: none;
+  }
+}
+
+.viewToggle {
+  color: #8c8175;
+  background-color: transparent;
+  transition: color 150ms ease;
+}
+
+.viewToggle:hover {
+  color: #9a603c;
+  background-color: transparent;
+}
+
+.viewToggle[aria-pressed="true"],
+.viewToggle[aria-pressed="true"]:hover {
+  color: #9a603c;
+  background-color: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .viewToggle {
+    transition: none;
   }
 }

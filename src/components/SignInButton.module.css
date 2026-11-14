@@ -1,0 +1,16 @@
+.chefIcon {
+  color: #302820;
+  background-color: transparent;
+  transition: color 150ms ease;
+}
+
+.chefIcon:hover {
+  color: #9a603c;
+  background-color: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chefIcon {
+    transition: none;
+  }
+}

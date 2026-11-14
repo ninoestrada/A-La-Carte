@@ -21,6 +21,7 @@ import {
 import RecipeModal from "./RecipeModal";
 import RecipeCarousel from "./RecipeCarousel";
 import classes from "./RecipeMenu.module.css";
+import Footer from "./Footer";
 
 interface Recipe {
   id: string;
@@ -156,8 +157,9 @@ export default function RecipeMenu({
                       <Tooltip label={`${section.title}: Menu view`}>
                         <ActionIcon
                           size="sm"
-                          variant={sectionView === "menu" ? "light" : "subtle"}
+                          variant="subtle"
                           color="dark"
+                          className={classes.viewToggle}
                           aria-label={`${section.title}: Menu view`}
                           aria-pressed={sectionView === "menu"}
                           onClick={() =>
@@ -175,6 +177,7 @@ export default function RecipeMenu({
                             sectionView === "gallery" ? "light" : "subtle"
                           }
                           color="dark"
+                          className={classes.viewToggle}
                           aria-label={`${section.title}: Gallery view`}
                           aria-pressed={sectionView === "gallery"}
                           onClick={() =>
@@ -267,6 +270,7 @@ export default function RecipeMenu({
             })}
           </>
         )}
+        <Footer />
       </Stack>
 
       {selectedRecipe && (
