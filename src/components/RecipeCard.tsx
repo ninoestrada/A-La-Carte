@@ -1,70 +1,52 @@
 "use client";
 
-import { useState } from "react";
-import { Paper, Title } from "@mantine/core";
-import RecipeModal from "./RecipeModal";
+import { Title } from "@mantine/core";
 import classes from "./RecipeCard.module.css";
 
 interface RecipeCardProps {
   id: string;
   image: string;
   title: string;
-  cuisine: string | null;
-  cookTime: number | null;
-  dietaryTags: string[] | null;
+  onHoverStart: (element: HTMLButtonElement) => void;
+  onHoverEnd: () => void;
+  onOpen: () => void;
 }
 
 export default function RecipeCard({
   id,
   image,
   title,
-  cuisine,
-  cookTime,
-  dietaryTags,
+  onHoverStart,
+  onHoverEnd,
+  onOpen,
 }: RecipeCardProps) {
-  const [opened, setOpened] = useState(false);
-
   return (
-    <>
-      <Paper
-        className={classes.card}
-        shadow="md"
-        radius="md"
-        onClick={() => setOpened(true)}
-        style={{
-          backgroundImage: `
-            linear-gradient(
-              to top,
-              rgba(0, 0, 0, 0.8),
-              rgba(0, 0, 0, 0) 60%
-            ),
-            url(${image})
-          `,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          height: 300,
-          width: 250,
-          display: "flex",
-          alignItems: "flex-end",
-          padding: 20,
-          overflow: "hidden",
-        }}
-      >
-        <Title order={3} c="white">
-          {title}
-        </Title>
-      </Paper>
-
-      <RecipeModal
-        opened={opened}
-        onClose={() => setOpened(false)}
-        id={id}
-        title={title}
-        image={image}
-        cuisine={cuisine}
-        cookTime={cookTime}
-        dietaryTags={dietaryTags}
-      />
-    </>
+    <button
+      type="button"
+      data-recipe-id={id}
+      className={classes.card}
+      onPointerEnter={(event) => {
+        if (event.pointerType === "mouse") {
+          onHoverStart(event.currentTarget);
+        }
+      }}
+      onPointerLeave={onHoverEnd}
+      onClick={onOpen}
+      aria-label={`View recipe: ${title}`}
+      style={{
+        backgroundImage: `
+          linear-gradient(
+            to top,
+            rgba(0, 0, 0, 0.8),
+            transparent 60%
+          ),
+          ${image ? `url("${image}")` : "none"}
+        `,
+      }}
+    >
+      <Title order={3} c="white" className={classes.cardTitle}>
+        {title}
+      </Title>
+    </button>
   );
 }

@@ -1,0 +1,51 @@
+.carousel {
+  position: relative;
+}
+
+/* Hide arrows by default */
+.carousel :global(.mantine-Carousel-control) {
+  opacity: 0;
+  transition:
+    opacity 250ms ease,
+    background-color 200ms ease;
+}
+
+/* Make the controls overlay cover the carousel height */
+.carousel :global(.mantine-Carousel-controls) {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* Each arrow gets a full-height vertical hover zone */
+.carousel :global(.mantine-Carousel-control) {
+  position: relative;
+  pointer-events: auto;
+}
+
+.carousel :global(.mantine-Carousel-control)::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 52px;
+  height: 300px;
+  transform: translate(-50%, -50%);
+}
+
+/* Reveal only the arrow whose vertical zone is hovered */
+.carousel :global(.mantine-Carousel-control:hover),
+.carousel :global(.mantine-Carousel-control:focus-visible) {
+  opacity: 1;
+}
+
+.carousel :global(.mantine-Carousel-control:hover) {
+  background-color: rgba(30, 30, 30, 0.85);
+  color: white;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .carousel :global(.mantine-Carousel-control) {
+    transition: none;
+  }
+}
