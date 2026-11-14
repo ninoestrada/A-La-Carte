@@ -6,7 +6,8 @@
 .carousel :global(.mantine-Carousel-control) {
   opacity: 0;
   transition:
-    opacity 250ms ease,
+    opacity 550ms ease,
+    transform 550ms ease,
     background-color 200ms ease;
 }
 
@@ -37,6 +38,7 @@
 .carousel :global(.mantine-Carousel-control:hover),
 .carousel :global(.mantine-Carousel-control:focus-visible) {
   opacity: 1;
+  transform: translateY(0);
 }
 
 .carousel :global(.mantine-Carousel-control:hover) {

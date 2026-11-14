@@ -4,7 +4,6 @@ import { useState } from "react";
 import {
   ActionIcon,
   Box,
-  Button,
   Divider,
   Group,
   Stack,
@@ -12,7 +11,12 @@ import {
   Title,
   Tooltip,
 } from "@mantine/core";
-import { IconList, IconPhoto } from "@tabler/icons-react";
+import {
+  IconChevronDown,
+  IconChevronUp,
+  IconList,
+  IconPhoto,
+} from "@tabler/icons-react";
 
 import RecipeModal from "./RecipeModal";
 import RecipeCarousel from "./RecipeCarousel";
@@ -43,7 +47,7 @@ interface RecipeMenuProps {
   onSectionViewChange: (id: string, view: View) => void;
 }
 
-const INITIAL_VISIBLE_RECIPES = 3;
+const RECIPES_PER_PAGE = 5;
 
 function formatEstimatedCost(cost: number | null | undefined) {
   return cost == null ? "—" : `$${Math.round(cost)}`;
@@ -55,15 +59,14 @@ export default function RecipeMenu({
   viewOverrides,
   onSectionViewChange,
 }: RecipeMenuProps) {
-  const [expandedSections, setExpandedSections] = useState<string[]>([]);
+  const [sectionPages, setSectionPages] = useState<Record<string, number>>({});
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
 
-  const toggleSection = (id: string) => {
-    setExpandedSections((previous) =>
-      previous.includes(id)
-        ? previous.filter((item) => item !== id)
-        : [...previous, id],
-    );
+  const changePage = (sectionId: string, nextPage: number) => {
+    setSectionPages((previous) => ({
+      ...previous,
+      [sectionId]: nextPage,
+    }));
   };
 
   const getRecipeImage = (recipe: Recipe) => {
@@ -93,11 +96,19 @@ export default function RecipeMenu({
 
         {sections.map((section) => {
           const sectionView = viewOverrides[section.id] ?? globalView;
-          const isExpanded = expandedSections.includes(section.id);
+          const totalPages = Math.ceil(
+            section.recipes.length / RECIPES_PER_PAGE,
+          );
 
-          const visibleRecipes = isExpanded
-            ? section.recipes
-            : section.recipes.slice(0, INITIAL_VISIBLE_RECIPES);
+          const currentPage = Math.min(
+            sectionPages[section.id] ?? 0,
+            Math.max(0, totalPages - 1),
+          );
+
+          const visibleRecipes = section.recipes.slice(
+            currentPage * RECIPES_PER_PAGE,
+            (currentPage + 1) * RECIPES_PER_PAGE,
+          );
 
           return (
             <Box key={section.id}>
@@ -137,46 +148,78 @@ export default function RecipeMenu({
                 </Group>
               </Group>
 
-              {section.recipes.length === 0 ? (
-                <Text ta="center" size="sm" c="dimmed">
-                  No recipes in this section yet.
-                </Text>
-              ) : sectionView === "menu" ? (
-                <>
-                  <Stack gap={2} className={classes.recipeList}>
-                    {visibleRecipes.map((recipe) => (
-                      <button
-                        key={recipe.id}
-                        type="button"
-                        className={classes.recipeRow}
-                        onClick={() => setSelectedRecipe(recipe)}
-                      >
-                        <span className={classes.recipeName}>
-                          {recipe.title}
-                        </span>
-                        <span className={classes.price}>
-                          {formatEstimatedCost(recipe.estimated_cost)}
-                        </span>
-                      </button>
-                    ))}
-                  </Stack>
+              <Box key={sectionView} className={classes.viewTransition}>
+                {section.recipes.length === 0 ? (
+                  <Text ta="center" size="sm" c="dimmed">
+                    No recipes in this section yet.
+                  </Text>
+                ) : sectionView === "menu" ? (
+                  <>
+                    <Stack gap={2} className={classes.recipeList}>
+                      {visibleRecipes.map((recipe) => (
+                        <button
+                          key={recipe.id}
+                          type="button"
+                          className={classes.recipeRow}
+                          onClick={() => setSelectedRecipe(recipe)}
+                        >
+                          <span className={classes.recipeName}>
+                            {recipe.title}
+                          </span>
+                          <span className={classes.price}>
+                            {formatEstimatedCost(recipe.estimated_cost)}
+                          </span>
+                        </button>
+                      ))}
+                    </Stack>
 
-                  {section.recipes.length > INITIAL_VISIBLE_RECIPES && (
-                    <Box ta="center" mt="md">
-                      <Button
-                        variant="transparent"
-                        color="dark"
-                        size="sm"
-                        onClick={() => toggleSection(section.id)}
+                    {totalPages > 1 && (
+                      <Group
+                        justify="center"
+                        gap="sm"
+                        mt="md"
+                        className={classes.paginationControls}
                       >
-                        {isExpanded ? "Show less" : "View more"}
-                      </Button>
-                    </Box>
-                  )}
-                </>
-              ) : (
-                <RecipeCarousel title="" recipes={section.recipes} />
-              )}
+                        <Tooltip label="Previous five recipes">
+                          <ActionIcon
+                            variant="subtle"
+                            color="dark"
+                            size="lg"
+                            disabled={currentPage === 0}
+                            aria-label="Previous five recipes"
+                            onClick={() =>
+                              changePage(section.id, currentPage - 1)
+                            }
+                          >
+                            <IconChevronUp size={22} stroke={1.7} />
+                          </ActionIcon>
+                        </Tooltip>
+
+                        <Text size="xs" c="dimmed">
+                          {currentPage + 1} / {totalPages}
+                        </Text>
+
+                        <Tooltip label="Next five recipes">
+                          <ActionIcon
+                            variant="subtle"
+                            color="dark"
+                            size="lg"
+                            disabled={currentPage === totalPages - 1}
+                            aria-label="Next five recipes"
+                            onClick={() =>
+                              changePage(section.id, currentPage + 1)
+                            }
+                          >
+                            <IconChevronDown size={22} stroke={1.7} />
+                          </ActionIcon>
+                        </Tooltip>
+                      </Group>
+                    )}
+                  </>
+                ) : (
+                  <RecipeCarousel title="" recipes={section.recipes} />
+                )}
+              </Box>
 
               <Divider color="#c9b99d" mt="xl" />
             </Box>
