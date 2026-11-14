@@ -1,11 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { ActionIcon, Group, Tooltip } from "@mantine/core";
-import { IconList, IconPhoto } from "@tabler/icons-react";
 
 import Navbar from "@/components/Navbar";
-import RecipeCarousel from "@/components/RecipeCarousel";
 import RecipeMenu from "@/components/RecipeMenu";
 
 interface Recipe {
@@ -42,7 +39,13 @@ export default function RecipeBrowser({
 
   const normalizedSearch = search.trim().toLowerCase();
 
-  const searchResults = recipes.filter((recipe) => {
+  const searchableRecipes = [
+    ...new Map(
+      [...recipes, ...myRecipes].map((recipe) => [recipe.id, recipe]),
+    ).values(),
+  ];
+
+  const searchResults = searchableRecipes.filter((recipe) => {
     const titleMatches = recipe.title.toLowerCase().includes(normalizedSearch);
 
     const cuisineMatches =
@@ -83,74 +86,43 @@ export default function RecipeBrowser({
   };
 
   return (
-    <>
-      <Navbar
-        search={search}
-        setSearch={setSearch}
-        searchOpened={searchOpened}
-        setSearchOpened={setSearchOpened}
+    <main
+      style={{
+        minHeight: "100vh",
+        padding: "32px 16px 64px",
+        backgroundColor: "#ececec",
+      }}
+    >
+      {isSignedIn && myRecipesLoadError && (
+        <p>Unable to load My Recipes. Please try again later.</p>
+      )}
+
+      {isSignedIn && !myRecipesLoadError && myRecipes.length === 0 && (
+        <p>You haven&apos;t created any recipes yet.</p>
+      )}
+
+      <RecipeMenu
+        sections={sections}
+        globalView={globalView}
+        viewOverrides={viewOverrides}
+        onGlobalViewChange={changeGlobalView}
+        onSectionViewChange={(id, view) =>
+          setViewOverrides((previous) => ({
+            ...previous,
+            [id]: view,
+          }))
+        }
+        navigation={
+          <Navbar
+            search={search}
+            setSearch={setSearch}
+            searchOpened={searchOpened}
+            setSearchOpened={setSearchOpened}
+          />
+        }
+        searchQuery={search.trim()}
+        searchResults={searchResults}
       />
-
-      <main style={{ padding: "24px 16px" }}>
-        {normalizedSearch ? (
-          searchResults.length > 0 ? (
-            <RecipeCarousel title="Search Results" recipes={searchResults} />
-          ) : (
-            <div>
-              <h2>No recipes found for &quot;{search}&quot;</h2>
-              <p>Try searching for another recipe, ingredient, or cuisine.</p>
-            </div>
-          )
-        ) : (
-          <>
-            <Group justify="flex-start" gap={4} mb="md">
-              <Tooltip label="Show all sections as menu">
-                <ActionIcon
-                  variant={globalView === "menu" ? "filled" : "subtle"}
-                  color="dark"
-                  size="lg"
-                  aria-label="Show all sections as menu"
-                  onClick={() => changeGlobalView("menu")}
-                >
-                  <IconList size={18} />
-                </ActionIcon>
-              </Tooltip>
-
-              <Tooltip label="Show all sections as gallery">
-                <ActionIcon
-                  variant={globalView === "gallery" ? "filled" : "subtle"}
-                  color="dark"
-                  size="lg"
-                  aria-label="Show all sections as gallery"
-                  onClick={() => changeGlobalView("gallery")}
-                >
-                  <IconPhoto size={18} />
-                </ActionIcon>
-              </Tooltip>
-            </Group>
-
-            {isSignedIn && myRecipesLoadError && (
-              <p>Unable to load My Recipes. Please try again later.</p>
-            )}
-
-            {isSignedIn && !myRecipesLoadError && myRecipes.length === 0 && (
-              <p>You haven&apos;t created any recipes yet.</p>
-            )}
-
-            <RecipeMenu
-              sections={sections}
-              globalView={globalView}
-              viewOverrides={viewOverrides}
-              onSectionViewChange={(id, view) =>
-                setViewOverrides((previous) => ({
-                  ...previous,
-                  [id]: view,
-                }))
-              }
-            />
-          </>
-        )}
-      </main>
-    </>
+    </main>
   );
 }

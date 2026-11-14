@@ -1,9 +1,10 @@
 "use client";
 
-import { Button, Group, Title } from "@mantine/core";
+import { Group } from "@mantine/core";
 import Link from "next/link";
 import RecipeSearch from "./RecipeSearch";
 import SignInButton from "@/components/SignInButton";
+import classes from "./Navbar.module.css";
 
 interface NavbarProps {
   search: string;
@@ -19,30 +20,11 @@ export default function Navbar({
   setSearchOpened,
 }: NavbarProps) {
   return (
-    <nav
-      style={{
-        position: "sticky",
-        top: 0,
-        zIndex: 100,
-        backgroundColor: "#0f0f0f",
-        padding: "16px 32px",
-      }}
-    >
-      <Group justify="space-between">
-        <Group gap="xl" align="center">
-          <Title order={2} c="white">
-            À La Carte
-          </Title>
-
-          <Button
-            component={Link}
-            href="/recipes/new"
-            variant="subtle"
-            color="gray"
-          >
-            Create Recipe
-          </Button>
-        </Group>
+    <nav aria-label="Main navigation" className={classes.navbar}>
+      <Group justify="space-between" align="center" gap="md">
+        <Link href="/recipes/new" className={classes.createRecipe}>
+          Create Recipe
+        </Link>
 
         <Group gap="xs" align="center" wrap="nowrap">
           <RecipeSearch
