@@ -1,5 +1,6 @@
 import { Box, Stack, Text } from "@mantine/core";
 import classes from "./Footer.module.css";
+import { greatVibes } from "@/lib/fonts";
 
 export default function Footer() {
   return (
@@ -7,7 +8,9 @@ export default function Footer() {
       <Stack align="center" gap={4}>
         <Text className={classes.chefTitle}>Chef de Cuisine</Text>
 
-        <Text className={classes.chefName}>Nino Estrada</Text>
+        <Text className={`${greatVibes.className} ${classes.chefName}`}>
+          Nino Estrada
+        </Text>
 
         <Text className={classes.copyright}>
           © {new Date().getFullYear()} À La Carte

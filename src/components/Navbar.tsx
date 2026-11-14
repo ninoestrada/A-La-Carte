@@ -4,6 +4,7 @@ import { Group } from "@mantine/core";
 import Link from "next/link";
 import RecipeSearch from "./RecipeSearch";
 import SignInButton from "@/components/SignInButton";
+import { cormorant } from "@/lib/fonts";
 import classes from "./Navbar.module.css";
 
 interface NavbarProps {
@@ -22,7 +23,10 @@ export default function Navbar({
   return (
     <nav aria-label="Main navigation" className={classes.navbar}>
       <Group justify="space-between" align="center" gap="md">
-        <Link href="/recipes/new" className={classes.createRecipe}>
+        <Link
+          href="/recipes/new"
+          className={`${cormorant.className} ${classes.createRecipe}`}
+        >
           Create Recipe
         </Link>
 

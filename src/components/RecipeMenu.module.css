@@ -24,8 +24,9 @@
   border-radius: 4px;
   background: transparent;
   color: inherit;
-  font-family: Georgia, serif;
+  font-family: inherit;
   font-size: 17px;
+  font-weight: 400;
   text-align: left;
   cursor:
     url("/icons/whisk.svg") 13 3,
@@ -45,6 +46,8 @@
 }
 
 .recipeName {
+  font-style: italic;
+  font-weight: 400;
   transition: color 150ms ease;
 }
 
@@ -147,4 +150,46 @@
   .viewToggle {
     transition: none;
   }
+}
+
+.menuTitle {
+  font-size: clamp(56px, 7vw, 88px);
+  line-height: 1.35;
+  color: #302820;
+}
+
+.sectionTitle {
+  font-size: clamp(20px, 2.5vw, 26px);
+  font-weight: 400;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #302820;
+}
+
+@media (max-width: 600px) {
+  .menuTitle {
+    font-size: 58px;
+  }
+
+  .sectionTitle {
+    font-size: 20px;
+    letter-spacing: 0.15em;
+  }
+}
+
+.menuTagline {
+  font-family: inherit;
+  font-size: 16px;
+  font-style: italic;
+  font-weight: 400;
+  color: #51483f;
+}
+
+.menuNote {
+  margin-top: 8px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: normal;
+  color: #8c8175;
 }

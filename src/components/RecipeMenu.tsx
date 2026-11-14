@@ -22,6 +22,19 @@ import RecipeModal from "./RecipeModal";
 import RecipeCarousel from "./RecipeCarousel";
 import classes from "./RecipeMenu.module.css";
 import Footer from "./Footer";
+import { Great_Vibes, Cormorant_Garamond } from "next/font/google";
+
+const greatVibes = Great_Vibes({
+  subsets: ["latin"],
+  weight: "400",
+  display: "swap",
+});
+
+const cormorant = Cormorant_Garamond({
+  subsets: ["latin"],
+  weight: "400",
+  display: "swap",
+});
 
 interface Recipe {
   id: string;
@@ -95,15 +108,19 @@ export default function RecipeMenu({
         {navigation}
 
         <Box ta="center">
-          <Title order={1} ff="Georgia, serif" fw={400}>
+          <Title
+            order={1}
+            fw={400}
+            className={`${greatVibes.className} ${classes.menuTitle}`}
+          >
             À La Carte
           </Title>
 
-          <Text size="sm" fs="italic">
+          <Text className={`${cormorant.className} ${classes.menuTagline}`}>
             A collection of recipes
           </Text>
 
-          <Text size="xs" mt="xs" c="dimmed">
+          <Text className={`${cormorant.className} ${classes.menuNote}`}>
             Estimated ingredient costs (USD)
           </Text>
         </Box>
@@ -149,7 +166,12 @@ export default function RecipeMenu({
                   <Group justify="space-between" align="center" mb="md">
                     <Box w={72} />
 
-                    <Title order={2} ff="Georgia, serif" fw={400} ta="center">
+                    <Title
+                      order={2}
+                      fw={400}
+                      ta="center"
+                      className={`${cormorant.className} ${classes.sectionTitle}`}
+                    >
                       {section.title}
                     </Title>
 

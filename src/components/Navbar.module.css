@@ -8,8 +8,9 @@
   padding: 10px 12px;
   border-radius: 4px;
   color: #302820;
-  font-family: Georgia, serif;
-  font-size: 17px;
+  font-size: 18px;
+  font-weight: 400;
+  font-style: normal;
   text-decoration: none;
   transition: color 150ms ease;
 }

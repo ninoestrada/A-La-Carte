@@ -11,10 +11,10 @@
 }
 
 .chefName {
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1.5;
   color: #302820;
-  font-family: Georgia, serif;
-  font-size: 18px;
-  text-align: center;
 }
 
 .copyright {
