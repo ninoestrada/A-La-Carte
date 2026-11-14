@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
 import {
   Modal,
   Button,
@@ -40,12 +39,14 @@ interface Ingredient {
 interface RecipeModalProps {
   opened: boolean;
   onClose: () => void;
+  onExitTransitionEnd?: () => void;
   id: string;
   title: string;
   image: string;
   cuisine: string | null;
   cookTime: number | null;
   dietaryTags: string[] | null;
+  onViewRecipe?: () => void;
 }
 
 type Reaction = "dislike" | "like" | "love" | null;
@@ -53,6 +54,8 @@ type Reaction = "dislike" | "like" | "love" | null;
 export default function RecipeModal({
   opened,
   onClose,
+  onExitTransitionEnd,
+  onViewRecipe,
   id,
   title,
   image,
@@ -134,9 +137,10 @@ export default function RecipeModal({
       radius="md"
       classNames={{ content: classes.modalContent, body: classes.modalBody }}
       transitionProps={{
-        transition: "fade-up",
-        duration: 300,
-        timingFunction: "ease",
+        transition: "scale",
+        duration: 250,
+        timingFunction: "ease-out",
+        onExited: onExitTransitionEnd,
       }}
       title={title}
       styles={{ header: { display: "none" } }}
@@ -163,17 +167,13 @@ export default function RecipeModal({
         </ActionIcon>
 
         <div className={classes.heroContent}>
-          <Title
-            order={2}
-            className={`${cormorant.className} ${classes.recipeTitle}`}
-          >
+          <h2 className={`${cormorant.className} ${classes.recipeTitle}`}>
             {title}
-          </Title>
+          </h2>
 
           <Group gap="sm" align="center" wrap="wrap">
             <Button
-              component={Link}
-              href={`/recipes/${id}`}
+              onClick={onViewRecipe}
               leftSection={<IconBook2 size={18} />}
               className={`${cormorant.className} ${classes.viewButton}`}
               radius="sm"

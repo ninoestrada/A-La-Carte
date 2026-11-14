@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Carousel } from "@mantine/carousel";
 import { Title } from "@mantine/core";
 import "@mantine/carousel/styles.css";
-
+import FullRecipeModal from "./FullRecipeModal";
 import RecipeCard from "./RecipeCard";
 import RecipeModal from "./RecipeModal";
 import classes from "./RecipeCarousel.module.css";
@@ -37,6 +37,23 @@ export default function RecipeCarousel({
 }: RecipeCarouselProps) {
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
 
+  const [recipeView, setRecipeView] = useState<"closed" | "preview" | "full">(
+    "closed",
+  );
+
+  const openRecipe = (recipe: Recipe) => {
+    setSelectedRecipe(recipe);
+    setRecipeView("preview");
+  };
+
+  const closeRecipe = () => {
+    setRecipeView("closed");
+  };
+
+  const viewFullRecipe = () => {
+    setRecipeView("full");
+  };
+
   return (
     <section>
       {title && <Title order={2}>{title}</Title>}
@@ -59,23 +76,37 @@ export default function RecipeCarousel({
               id={recipe.id}
               image={getRecipeImage(recipe)}
               title={recipe.title}
-              onOpen={() => setSelectedRecipe(recipe)}
+              onOpen={() => openRecipe(recipe)}
             />
           </Carousel.Slide>
         ))}
       </Carousel>
 
       {selectedRecipe && (
-        <RecipeModal
-          opened={true}
-          onClose={() => setSelectedRecipe(null)}
-          id={selectedRecipe.id}
-          title={selectedRecipe.title}
-          image={getRecipeImage(selectedRecipe)}
-          cuisine={selectedRecipe.cuisine}
-          cookTime={selectedRecipe.cook_time_minutes}
-          dietaryTags={selectedRecipe.dietary_tags}
-        />
+        <>
+          <RecipeModal
+            opened={recipeView === "preview"}
+            onClose={closeRecipe}
+            onViewRecipe={viewFullRecipe}
+            id={selectedRecipe.id}
+            title={selectedRecipe.title}
+            image={getRecipeImage(selectedRecipe)}
+            cuisine={selectedRecipe.cuisine}
+            cookTime={selectedRecipe.cook_time_minutes}
+            dietaryTags={selectedRecipe.dietary_tags}
+          />
+
+          <FullRecipeModal
+            opened={recipeView === "full"}
+            onClose={closeRecipe}
+            id={selectedRecipe.id}
+            title={selectedRecipe.title}
+            image={getRecipeImage(selectedRecipe)}
+            cuisine={selectedRecipe.cuisine}
+            cookTime={selectedRecipe.cook_time_minutes}
+            dietaryTags={selectedRecipe.dietary_tags}
+          />
+        </>
       )}
     </section>
   );

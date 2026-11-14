@@ -1,0 +1,262 @@
+.modalInner {
+  padding: 32px 20px;
+}
+
+.modalContent {
+  width: 100%;
+  max-width: 1050px;
+  max-height: calc(100dvh - 64px);
+  margin: auto;
+  background-color: #faf7f0;
+  border: 1px solid #c9b99d;
+  box-shadow:
+    0 2px 4px rgba(48, 40, 32, 0.08),
+    0 12px 24px rgba(48, 40, 32, 0.1),
+    0 28px 60px rgba(48, 40, 32, 0.08);
+}
+
+.modalBody {
+  padding: 0;
+}
+
+.recipePaper {
+  padding: 36px 56px 48px;
+  color: #302820;
+  background-color: #faf7f0;
+}
+
+.topBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 0;
+  background: transparent;
+  padding: 8px 0;
+  color: #786e63;
+  font-size: 19px;
+  cursor: pointer;
+}
+
+.backLink:hover {
+  color: #9a603c;
+}
+
+.closeButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid #c9b99d;
+  border-radius: 50%;
+  background: transparent;
+  color: #786e63;
+  cursor: pointer;
+}
+
+.closeButton:hover {
+  color: #302820;
+  background: #eee4d7;
+}
+
+.header {
+  text-align: center;
+}
+
+.menuTitle {
+  font-size: clamp(48px, 6vw, 72px);
+  line-height: 1.35;
+  font-weight: 400;
+  color: #302820;
+}
+
+.recipeTitle {
+  color: #302820;
+  font-size: clamp(34px, 4vw, 46px);
+  font-weight: 400;
+  font-style: italic;
+  line-height: 1.3;
+  letter-spacing: 0.025em;
+  margin-top: 12px;
+  margin-bottom: 16px;
+}
+
+.metadata {
+  color: #786e63;
+  font-size: 19px;
+  font-style: italic;
+}
+
+.dietaryTag {
+  border: 1px solid #c9b99d;
+  border-radius: 3px;
+  padding: 3px 12px;
+  color: #786e63;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.imageContainer {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border: 1px solid #c9b99d;
+  border-radius: 3px;
+}
+
+.recipeImage {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.divider {
+  border-color: #c9b99d;
+  margin-block: 12px;
+}
+
+.sectionTitle {
+  color: #302820;
+  text-align: center;
+  font-size: 29px;
+  font-weight: 400;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  margin-bottom: 26px;
+}
+
+.ingredientsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px 32px;
+}
+
+.ingredientRow {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+}
+
+.ingredientIcon {
+  width: 48px;
+  min-width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ingredientName {
+  color: #51483f;
+  font-size: 22px;
+  font-weight: 400;
+  line-height: 1.2;
+}
+
+.ingredientQuantity {
+  color: #8c8175;
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+.instructionRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+}
+
+.stepNumber {
+  min-width: 40px;
+  color: #9a603c;
+  font-size: 32px;
+  font-weight: 400;
+  line-height: 1.2;
+}
+
+.instructionText {
+  color: #51483f;
+  font-size: 22px;
+  font-weight: 400;
+  line-height: 1.45;
+}
+
+.loadingState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 40px 0;
+}
+
+.emptyText {
+  color: #8c8175;
+  font-style: italic;
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .recipePaper {
+    padding: 32px 24px;
+  }
+}
+
+@media (max-width: 600px) {
+  .modalInner {
+    padding: 12px;
+  }
+
+  .modalContent {
+    max-height: calc(100dvh - 24px);
+  }
+
+  .recipePaper {
+    padding: 24px 16px 32px;
+  }
+
+  .menuTitle {
+    font-size: 48px;
+  }
+
+  .recipeTitle {
+    font-size: 34px;
+  }
+
+  .imageContainer {
+    aspect-ratio: 4 / 3;
+  }
+
+  .ingredientsGrid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .sectionTitle {
+    font-size: 20px;
+    letter-spacing: 0.15em;
+  }
+
+  .instructionRow {
+    gap: 14px;
+  }
+
+  .instructionText {
+    font-size: 20px;
+  }
+}
+
+.overlay {
+  background-color: rgba(48, 40, 32, 0.25);
+}

@@ -1,6 +1,7 @@
 "use client";
 
 import classes from "./RecipeCard.module.css";
+import { cormorant } from "@/lib/fonts";
 
 interface RecipeCardProps {
   id: string;
@@ -32,7 +33,9 @@ export default function RecipeCard({
       />
 
       <span className={classes.cardOverlay}>
-        <span className={classes.cardTitle}>{title}</span>
+        <span className={`${cormorant.className} ${classes.cardTitle}`}>
+          {title}
+        </span>
       </span>
     </button>
   );

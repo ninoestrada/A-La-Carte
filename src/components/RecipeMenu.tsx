@@ -17,7 +17,7 @@ import {
   IconList,
   IconPhoto,
 } from "@tabler/icons-react";
-
+import FullRecipeModal from "./FullRecipeModal";
 import RecipeModal from "./RecipeModal";
 import RecipeCarousel from "./RecipeCarousel";
 import classes from "./RecipeMenu.module.css";
@@ -83,6 +83,22 @@ export default function RecipeMenu({
 }: RecipeMenuProps) {
   const [sectionPages, setSectionPages] = useState<Record<string, number>>({});
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
+  const [recipeView, setRecipeView] = useState<"closed" | "preview" | "full">(
+    "closed",
+  );
+
+  const openRecipe = (recipe: Recipe) => {
+    setSelectedRecipe(recipe);
+    setRecipeView("preview");
+  };
+
+  const closeRecipe = () => {
+    setRecipeView("closed");
+  };
+
+  const viewFullRecipe = () => {
+    setRecipeView("full");
+  };
 
   // Keep the global view handler available for the existing prop contract.
   void onGlobalViewChange;
@@ -225,7 +241,7 @@ export default function RecipeMenu({
                               key={recipe.id}
                               type="button"
                               className={classes.recipeRow}
-                              onClick={() => setSelectedRecipe(recipe)}
+                              onClick={() => openRecipe(recipe)}
                             >
                               <span className={classes.recipeName}>
                                 {recipe.title}
@@ -296,16 +312,30 @@ export default function RecipeMenu({
       </Stack>
 
       {selectedRecipe && (
-        <RecipeModal
-          opened={true}
-          onClose={() => setSelectedRecipe(null)}
-          id={selectedRecipe.id}
-          title={selectedRecipe.title}
-          image={getRecipeImage(selectedRecipe)}
-          cuisine={selectedRecipe.cuisine}
-          cookTime={selectedRecipe.cook_time_minutes}
-          dietaryTags={selectedRecipe.dietary_tags}
-        />
+        <>
+          <RecipeModal
+            opened={recipeView === "preview"}
+            onClose={closeRecipe}
+            onViewRecipe={viewFullRecipe}
+            id={selectedRecipe.id}
+            title={selectedRecipe.title}
+            image={getRecipeImage(selectedRecipe)}
+            cuisine={selectedRecipe.cuisine}
+            cookTime={selectedRecipe.cook_time_minutes}
+            dietaryTags={selectedRecipe.dietary_tags}
+          />
+
+          <FullRecipeModal
+            opened={recipeView === "full"}
+            onClose={closeRecipe}
+            id={selectedRecipe.id}
+            title={selectedRecipe.title}
+            image={getRecipeImage(selectedRecipe)}
+            cuisine={selectedRecipe.cuisine}
+            cookTime={selectedRecipe.cook_time_minutes}
+            dietaryTags={selectedRecipe.dietary_tags}
+          />
+        </>
       )}
     </Box>
   );
