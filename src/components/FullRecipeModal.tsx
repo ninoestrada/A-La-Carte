@@ -46,10 +46,19 @@ export default function FullRecipeModal({
   cookTime,
   dietaryTags,
 }: FullRecipeModalProps) {
-  const [ingredients, setIngredients] = useState<Ingredient[]>([]);
-  const [instructions, setInstructions] = useState<Instruction[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [loadError, setLoadError] = useState(false);
+  type RecipeDetails = {
+    id: string;
+    ingredients: Ingredient[];
+    instructions: Instruction[];
+    loadError: boolean;
+  };
+
+  const [details, setDetails] = useState<RecipeDetails | null>(null);
+
+  const loading = details?.id !== id;
+  const loadError = !loading && details.loadError;
+  const ingredients = !loading ? details.ingredients : [];
+  const instructions = !loading ? details.instructions : [];
 
   useEffect(() => {
     if (!opened) return;
@@ -72,19 +81,23 @@ export default function FullRecipeModal({
 
       if (cancelled) return;
 
-      if (ingredientsResult.error || instructionsResult.error) {
+      const hasError = Boolean(
+        ingredientsResult.error || instructionsResult.error,
+      );
+
+      if (hasError) {
         console.error(
           "Error loading recipe:",
           ingredientsResult.error ?? instructionsResult.error,
         );
-        setLoadError(true);
-      } else {
-        setIngredients(ingredientsResult.data ?? []);
-        setInstructions(instructionsResult.data ?? []);
-        setLoadError(false);
       }
 
-      setLoading(false);
+      setDetails({
+        id,
+        ingredients: hasError ? [] : (ingredientsResult.data ?? []),
+        instructions: hasError ? [] : (instructionsResult.data ?? []),
+        loadError: hasError,
+      });
     }
 
     void loadRecipe();

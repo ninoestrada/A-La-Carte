@@ -60,7 +60,7 @@ export default function RecipeCarousel({
 
       <Carousel
         className={classes.carousel}
-        slideSize="270px"
+        slideSize="min(270px, 100%)"
         slideGap="md"
         withControls={recipes.length > 1}
         emblaOptions={{
