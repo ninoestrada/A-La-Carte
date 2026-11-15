@@ -148,11 +148,16 @@ export default function RecipeMenu({
             <RecipeCarousel title="Search Results" recipes={searchResults} />
           ) : (
             <Box ta="center" py="xl">
-              <Title order={2} ff="Georgia, serif" fw={400}>
+              <Title order={2} fw={400} className={cormorant.className}>
                 No recipes found
               </Title>
 
-              <Text size="sm" c="dimmed" mt="sm">
+              <Text
+                size="sm"
+                c="dimmed"
+                mt="sm"
+                className={cormorant.className}
+              >
                 No results for &quot;{searchQuery}&quot;. Try another recipe,
                 ingredient, or cuisine.
               </Text>
@@ -235,7 +240,12 @@ export default function RecipeMenu({
 
                   <Box key={sectionView} className={classes.viewTransition}>
                     {section.recipes.length === 0 ? (
-                      <Text ta="center" size="sm" c="dimmed">
+                      <Text
+                        ta="center"
+                        size="sm"
+                        c="dimmed"
+                        className={cormorant.className}
+                      >
                         No recipes in this section yet.
                       </Text>
                     ) : sectionView === "menu" ? (

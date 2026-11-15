@@ -4,6 +4,9 @@
 
 .carousel :global(.mantine-Carousel-control) {
   opacity: 0;
+  background-color: #fffaf2;
+  color: #9a603c;
+  border: 1px solid #c9b99d;
   transition:
     opacity 550ms ease,
     transform 550ms ease,
@@ -54,8 +57,8 @@
 }
 
 .carousel :global(.mantine-Carousel-control:hover) {
-  background-color: rgba(30, 30, 30, 0.85);
-  color: white;
+  background-color: #eee8dc;
+  color: #75472c;
 }
 
 @media (prefers-reduced-motion: reduce) {

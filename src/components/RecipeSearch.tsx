@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import { ActionIcon, TextInput } from "@mantine/core";
 import { IconSearch, IconX } from "@tabler/icons-react";
 import classes from "./RecipeSearch.module.css";
+import { cormorant } from "@/lib/fonts";
 
 interface RecipeSearchProps {
   search: string;
@@ -98,7 +99,7 @@ export default function RecipeSearch({
                 <IconX size={18} />
               </ActionIcon>
             }
-            className={classes.input}
+            className={`${classes.input} ${cormorant.className}`}
           />
         </div>
       </div>

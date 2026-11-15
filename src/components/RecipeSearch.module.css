@@ -55,6 +55,8 @@
 }
 
 .input input {
+  font-family: inherit;
+  font-size: 17px;
   color: #302820;
   caret-color: #302820;
 }

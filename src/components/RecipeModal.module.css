@@ -59,12 +59,14 @@
   top: 16px;
   right: 16px;
   z-index: 2;
-  background-color: rgba(48, 40, 32, 0.88);
-  color: #fffaf2;
+  background-color: rgba(250, 247, 240, 0.88);
+  color: #302820;
+  border: 1px solid #c9b99d;
 }
 
 .closeButton:hover {
-  background-color: #302820;
+  background-color: #faf7f0;
+  color: #302820;
 }
 
 .viewButton {
