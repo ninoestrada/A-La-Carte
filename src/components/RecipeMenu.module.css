@@ -28,9 +28,7 @@
   font-size: 17px;
   font-weight: 400;
   text-align: left;
-  cursor:
-    url("/icons/whisk.svg") 13 3,
-    pointer;
+  cursor: pointer;
   transition: background-color 150ms ease;
 }
 
@@ -192,4 +190,28 @@
   font-weight: 400;
   letter-spacing: normal;
   color: #8c8175;
+}
+
+@media (max-width: 600px) {
+  .sectionHeader {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    row-gap: 8px;
+  }
+
+  .sectionHeader > :first-child {
+    display: none;
+  }
+
+  .sectionHeader > :nth-child(2) {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    justify-self: center;
+  }
+
+  .sectionHeader > :last-child {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    justify-self: center;
+  }
 }

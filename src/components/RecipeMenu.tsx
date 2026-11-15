@@ -179,7 +179,12 @@ export default function RecipeMenu({
 
               return (
                 <Box key={section.id}>
-                  <Group justify="space-between" align="center" mb="md">
+                  <Group
+                    justify="space-between"
+                    align="center"
+                    mb="md"
+                    className={classes.sectionHeader}
+                  >
                     <Box w={72} />
 
                     <Title

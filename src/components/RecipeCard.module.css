@@ -5,15 +5,12 @@
   height: 300px;
   padding: 0;
   overflow: hidden;
-
   border: 2px solid #c9b99d;
   border-radius: 8px;
   background-color: #eee8dc;
-
   text-align: left;
   cursor: pointer;
   transform: scale(1);
-
   transition:
     transform 280ms ease,
     border-color 280ms ease,
@@ -24,7 +21,6 @@
   position: absolute;
   inset: 0;
   display: block;
-
   background-size: cover;
   background-position: center;
 }
@@ -35,11 +31,13 @@
   display: flex;
   align-items: flex-end;
   padding: 20px;
-
   background: linear-gradient(to top, rgba(20, 15, 10, 0.75), transparent 65%);
-
   opacity: 0;
   transition: opacity 300ms ease;
+}
+
+.cardOverlay.noImage {
+  opacity: 1;
 }
 
 .cardTitle {
@@ -57,11 +55,9 @@
 .card:focus-visible {
   transform: scale(1.035);
   border-color: #c9b99d;
-
   box-shadow:
     0 0 0 2px #c9b99d,
     0 10px 24px rgba(48, 40, 32, 0.15);
-
   z-index: 2;
 }
 

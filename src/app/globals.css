@@ -40,3 +40,20 @@ a {
     color-scheme: dark;
   }
 }
+
+@media (hover: hover) and (pointer: fine) {
+  body {
+    cursor:
+      url("/icons/wooden-spoon-cursor.svg") 8 5,
+      auto;
+  }
+
+  button,
+  a,
+  [role="button"],
+  [class*="recipeCard"] {
+    cursor:
+      url("/icons/wooden-spoon-pointer.svg") 16 3,
+      pointer !important;
+  }
+}

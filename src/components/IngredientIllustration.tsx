@@ -40,17 +40,12 @@ const ingredientNames = [
   ...new Set([...Object.keys(aliases), ...iconLookup.keys()]),
 ].sort((a, b) => b.length - a.length);
 
-// Match ingredient names, including names with quantities or descriptions.
 function getIngredientIcon(name: string): FoodIcon | undefined {
-  const normalizedName = name.toLowerCase().trim();
+  const normalizedName = normalizeName(name);
 
-  const matchingIngredient = ingredientNames.find((ingredient) => {
-    const pattern = new RegExp(
-      `(^|[^a-z])${ingredient.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}($|[^a-z])`,
-    );
-
-    return pattern.test(normalizedName);
-  });
+  const matchingIngredient = ingredientNames.find((ingredient) =>
+    normalizedName.includes(ingredient),
+  );
 
   if (!matchingIngredient) {
     return undefined;

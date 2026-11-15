@@ -32,7 +32,9 @@ export default function RecipeCard({
         }}
       />
 
-      <span className={classes.cardOverlay}>
+      <span
+        className={`${classes.cardOverlay} ${!image ? classes.noImage : ""}`}
+      >
         <span className={`${cormorant.className} ${classes.cardTitle}`}>
           {title}
         </span>

@@ -105,16 +105,13 @@
   background: transparent;
   border: none;
   box-shadow: none;
-
   color: #302820;
   font-family: inherit;
   font-size: 18px;
   font-weight: 400;
-
   padding: 0 8px;
   height: 44px;
   min-height: 44px;
-
   cursor: pointer;
   transition: color 150ms ease;
 }
@@ -138,4 +135,39 @@
     padding-top: 0;
     justify-content: flex-end;
   }
+}
+
+/* Error alert */
+
+.recipeForm .formAlert {
+  background-color: #faf7f0;
+  border: 1px solid #c9b99d;
+  border-radius: 3px;
+  color: #302820;
+  font-family: inherit;
+  font-size: 17px;
+}
+
+.recipeForm .formAlert :global(.mantine-Alert-message) {
+  color: #e75f59;
+  font-family: inherit;
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.recipeForm .formAlert :global(.mantine-Alert-closeButton) {
+  color: #302820;
+  background-color: transparent;
+  border-radius: 50%;
+}
+
+.recipeForm .formAlert :global(.mantine-Alert-closeButton:hover) {
+  color: #302820;
+  background-color: #eee4d7;
+}
+
+.recipeForm .formAlert :global(.mantine-Alert-closeButton:focus-visible) {
+  outline: 2px solid #302820;
+  outline-offset: 2px;
 }

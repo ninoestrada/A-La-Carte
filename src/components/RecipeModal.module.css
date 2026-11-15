@@ -2,7 +2,8 @@
   background-color: #faf7f0;
   color: #302820;
   border: 1px solid #c9b99d;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
   box-shadow: 0 18px 60px rgba(48, 40, 32, 0.22);
 }
 

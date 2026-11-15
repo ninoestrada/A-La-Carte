@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import {
+  Alert,
   Button,
   Container,
   FileInput,
@@ -45,6 +46,7 @@ export default function CreateRecipeForm({
   const [dietaryTags, setDietaryTags] = useState<string[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [hasSubmitted, setHasSubmitted] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
   const [photo, setPhoto] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const createdRecipeId = useRef<string | null>(null);
@@ -145,6 +147,7 @@ export default function CreateRecipeForm({
   async function handleSaveRecipe() {
     if (isSaving) return;
 
+    setFormError(null);
     setHasSubmitted(true);
 
     if (!isFormValid) return;
@@ -160,7 +163,7 @@ export default function CreateRecipeForm({
       } = await supabase.auth.getUser();
 
       if (authError || !user) {
-        alert("Please sign in to create a recipe.");
+        setFormError("Please sign in to create a recipe.");
         return;
       }
 
@@ -464,6 +467,17 @@ export default function CreateRecipeForm({
           <Text size="sm" c="red">
             Please correct the highlighted fields before saving your recipe.
           </Text>
+        )}
+
+        {formError && (
+          <Alert
+            className={classes.formAlert}
+            role="alert"
+            withCloseButton
+            onClose={() => setFormError(null)}
+          >
+            {formError}
+          </Alert>
         )}
 
         <Button
