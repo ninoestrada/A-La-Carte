@@ -62,7 +62,7 @@
 }
 
 .input input::placeholder {
-  color: #8c8175;
+  color: #786e63;
 }
 
 @media (max-width: 600px) {

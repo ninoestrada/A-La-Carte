@@ -143,7 +143,7 @@
 }
 
 .emptyIngredients {
-  color: #8c8175;
+  color: #786e63;
   font-style: italic;
 }
 
@@ -198,7 +198,7 @@
 
 .ingredientQuantity {
   font-size: 13px;
-  color: #8c8175;
+  color: #786e63;
 }
 
 .reactionOption {
