@@ -1,9 +1,13 @@
 "use client";
 
+import { useState } from "react";
 import { Carousel } from "@mantine/carousel";
-import "@mantine/carousel/styles.css";
-import RecipeCard from "./RecipeCard";
 import { Title } from "@mantine/core";
+import "@mantine/carousel/styles.css";
+import FullRecipeModal from "./FullRecipeModal";
+import RecipeCard from "./RecipeCard";
+import RecipeModal from "./RecipeModal";
+import classes from "./RecipeCarousel.module.css";
 
 interface Recipe {
   id: string;
@@ -19,38 +23,91 @@ interface RecipeCarouselProps {
   recipes: Recipe[];
 }
 
+function getRecipeImage(recipe: Recipe): string {
+  if (recipe.image_url?.startsWith("https://")) {
+    return recipe.image_url;
+  }
+
+  return recipe.image_url ? `/api/recipes/${recipe.id}/image` : "";
+}
+
 export default function RecipeCarousel({
   title,
   recipes,
 }: RecipeCarouselProps) {
+  const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
+
+  const [recipeView, setRecipeView] = useState<"closed" | "preview" | "full">(
+    "closed",
+  );
+
+  const openRecipe = (recipe: Recipe) => {
+    setSelectedRecipe(recipe);
+    setRecipeView("preview");
+  };
+
+  const closeRecipe = () => {
+    setRecipeView("closed");
+  };
+
+  const viewFullRecipe = () => {
+    setRecipeView("full");
+  };
+
   return (
     <section>
-      <Title order={2}>{title}</Title>
+      {title && <Title order={2}>{title}</Title>}
 
       <Carousel
-        slideSize="250px"
+        className={classes.carousel}
+        slideSize="min(270px, 100%)"
         slideGap="md"
-        emblaOptions={{ align: "start" }}
+        withControls={recipes.length > 1}
+        emblaOptions={{
+          align: "start",
+          containScroll: "trimSnaps",
+          duration: 30,
+          dragFree: false,
+        }}
       >
         {recipes.map((recipe) => (
           <Carousel.Slide key={recipe.id}>
             <RecipeCard
               id={recipe.id}
-              image={
-                recipe.image_url?.startsWith("https://")
-                  ? recipe.image_url
-                  : recipe.image_url
-                    ? `/api/recipes/${recipe.id}/image`
-                    : ""
-              }
+              image={getRecipeImage(recipe)}
               title={recipe.title}
-              cuisine={recipe.cuisine}
-              cookTime={recipe.cook_time_minutes}
-              dietaryTags={recipe.dietary_tags}
+              onOpen={() => openRecipe(recipe)}
             />
           </Carousel.Slide>
         ))}
       </Carousel>
+
+      {selectedRecipe && (
+        <>
+          <RecipeModal
+            opened={recipeView === "preview"}
+            onClose={closeRecipe}
+            onViewRecipe={viewFullRecipe}
+            id={selectedRecipe.id}
+            title={selectedRecipe.title}
+            image={getRecipeImage(selectedRecipe)}
+            cuisine={selectedRecipe.cuisine}
+            cookTime={selectedRecipe.cook_time_minutes}
+            dietaryTags={selectedRecipe.dietary_tags}
+          />
+
+          <FullRecipeModal
+            opened={recipeView === "full"}
+            onClose={closeRecipe}
+            id={selectedRecipe.id}
+            title={selectedRecipe.title}
+            image={getRecipeImage(selectedRecipe)}
+            cuisine={selectedRecipe.cuisine}
+            cookTime={selectedRecipe.cook_time_minutes}
+            dietaryTags={selectedRecipe.dietary_tags}
+          />
+        </>
+      )}
     </section>
   );
 }

@@ -1,9 +1,30 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import Link from "next/link";
-import { Modal, Button, Title, Text, Group } from "@mantine/core";
+import { useEffect, useRef, useState } from "react";
+import {
+  Modal,
+  Button,
+  Text,
+  Group,
+  Box,
+  Stack,
+  ActionIcon,
+  Tooltip,
+  Divider,
+  Popover,
+} from "@mantine/core";
 import { createClient } from "@/lib/supabase/client";
+import { cormorant } from "@/lib/fonts";
+import {
+  IconBook2,
+  IconHeart,
+  IconHeartBroken,
+  IconHearts,
+  IconBookmark,
+  IconX,
+} from "@tabler/icons-react";
+import classes from "./RecipeModal.module.css";
+import { IngredientIllustration } from "./IngredientIllustration";
 
 const supabase = createClient();
 
@@ -17,17 +38,23 @@ interface Ingredient {
 interface RecipeModalProps {
   opened: boolean;
   onClose: () => void;
+  onExitTransitionEnd?: () => void;
   id: string;
   title: string;
   image: string;
   cuisine: string | null;
   cookTime: number | null;
   dietaryTags: string[] | null;
+  onViewRecipe?: () => void;
 }
+
+type Reaction = "dislike" | "like" | "love" | null;
 
 export default function RecipeModal({
   opened,
   onClose,
+  onExitTransitionEnd,
+  onViewRecipe,
   id,
   title,
   image,
@@ -36,38 +63,83 @@ export default function RecipeModal({
   dietaryTags,
 }: RecipeModalProps) {
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
+  const [ingredientsLoading, setIngredientsLoading] = useState(false);
+  const [ingredientsError, setIngredientsError] = useState(false);
+  const [reaction, setReaction] = useState<Reaction>(null);
+  const [reactionOpened, setReactionOpened] = useState(false);
+  const reactionCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  function cancelReactionClose() {
+    if (reactionCloseTimer.current) {
+      clearTimeout(reactionCloseTimer.current);
+      reactionCloseTimer.current = null;
+    }
+  }
+
+  function scheduleReactionClose() {
+    cancelReactionClose();
+
+    reactionCloseTimer.current = setTimeout(() => {
+      setReactionOpened(false);
+    }, 180);
+  }
 
   useEffect(() => {
-    if (!opened) {
-      return;
-    }
+    return () => {
+      if (reactionCloseTimer.current) {
+        clearTimeout(reactionCloseTimer.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!opened) return;
 
     let cancelled = false;
 
     async function loadIngredients() {
-      const { data, error } = await supabase
-        .from("recipe_ingredients")
-        .select("id, name, quantity, unit")
-        .eq("recipe_id", id);
+      setIngredients([]);
+      setIngredientsLoading(true);
+      setIngredientsError(false);
 
-      if (cancelled) {
-        return;
-      }
+      try {
+        const { data, error } = await supabase
+          .from("recipe_ingredients")
+          .select("id, name, quantity, unit")
+          .eq("recipe_id", id);
 
-      if (error) {
+        if (cancelled) return;
+
+        if (error) {
+          console.error("Error loading ingredients:", error);
+          setIngredientsError(true);
+          return;
+        }
+
+        setIngredients(data ?? []);
+      } catch (error) {
+        if (cancelled) return;
+
         console.error("Error loading ingredients:", error);
-        return;
+        setIngredientsError(true);
+      } finally {
+        if (!cancelled) {
+          setIngredientsLoading(false);
+        }
       }
-
-      setIngredients(data ?? []);
     }
 
-    loadIngredients();
+    void loadIngredients();
 
     return () => {
       cancelled = true;
     };
   }, [opened, id]);
+
+  function selectReaction(value: Reaction) {
+    setReaction(value);
+    setReactionOpened(false);
+  }
 
   return (
     <Modal
@@ -78,120 +150,211 @@ export default function RecipeModal({
       withCloseButton={false}
       padding={0}
       radius="md"
-      styles={{
-        content: {
-          backgroundColor: "#181818",
-          color: "white",
-          overflow: "hidden",
-        },
-        body: {
-          padding: 0,
-        },
+      classNames={{ content: classes.modalContent, body: classes.modalBody }}
+      transitionProps={{
+        transition: "scale",
+        duration: 250,
+        timingFunction: "ease-out",
+        onExited: onExitTransitionEnd,
       }}
+      title={title}
+      styles={{ header: { display: "none" } }}
     >
-      {/* Hero image */}
-      <div
-        style={{
-          position: "relative",
-          height: 350,
-          backgroundImage: `
-          linear-gradient(
-            to bottom,
-            rgba(0, 0, 0, 0) 40%,
-            rgba(24, 24, 24, 1) 100%
-          ),
-          url(${image})
-        `,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      >
-        {/* Close button */}
-        <button
+      <Box className={classes.hero}>
+        {image && (
+          <div
+            className={classes.heroImage}
+            style={{ backgroundImage: `url("${image}")` }}
+          />
+        )}
+
+        <div className={classes.heroGradient} />
+
+        <ActionIcon
+          className={classes.closeButton}
           onClick={onClose}
           aria-label="Close recipe preview"
-          style={{
-            position: "absolute",
-            top: 16,
-            right: 16,
-            width: 40,
-            height: 40,
-            borderRadius: "50%",
-            border: "none",
-            background: "#181818",
-            color: "white",
-            fontSize: 24,
-            cursor: "pointer",
-          }}
+          variant="filled"
+          radius="xl"
+          size="lg"
         >
-          ×
-        </button>
+          <IconX size={20} />
+        </ActionIcon>
 
-        {/* Title + actions over image */}
-        <div
-          style={{
-            position: "absolute",
-            left: 32,
-            right: 32,
-            bottom: 20,
-          }}
-        >
-          <Title order={1} c="white">
+        <div className={classes.heroContent}>
+          <h2 className={`${cormorant.className} ${classes.recipeTitle}`}>
             {title}
-          </Title>
+          </h2>
 
-          <Group mt="md">
-            <Button component={Link} href={`/recipes/${id}`}>
+          <Group gap="sm" align="center" wrap="wrap">
+            <Button
+              onClick={onViewRecipe}
+              leftSection={<IconBook2 size={18} />}
+              className={`${cormorant.className} ${classes.viewButton}`}
+              radius="sm"
+            >
               View Recipe
             </Button>
 
-            <Button variant="outline" color="gray">
-              +
-            </Button>
+            <Tooltip label="Save to My Recipes — coming soon">
+              <span>
+                <ActionIcon
+                  className={`${classes.heroAction} ${classes.saveAction}`}
+                  aria-label="Save to My Recipes — coming soon"
+                  radius="xl"
+                  size="lg"
+                  disabled
+                >
+                  <IconBookmark size={19} />
+                </ActionIcon>
+              </span>
+            </Tooltip>
 
-            <Button variant="outline" color="gray">
-              👍
-            </Button>
+            <Popover
+              opened={reactionOpened}
+              onChange={setReactionOpened}
+              position="top-start"
+              offset={12}
+              withArrow
+              shadow="md"
+              withinPortal
+            >
+              <Popover.Target>
+                <Tooltip label="React to this recipe" disabled={reactionOpened}>
+                  <ActionIcon
+                    className={classes.heroAction}
+                    radius="xl"
+                    size="lg"
+                    aria-label="React to this recipe"
+                    aria-expanded={reactionOpened}
+                    onMouseEnter={() => {
+                      cancelReactionClose();
+                      setReactionOpened(true);
+                    }}
+                    onMouseLeave={scheduleReactionClose}
+                    onClick={() => {
+                      cancelReactionClose();
+                      setReactionOpened((value) => !value);
+                    }}
+                  >
+                    {reaction === "dislike" ? (
+                      <IconHeartBroken size={19} />
+                    ) : reaction === "love" ? (
+                      <IconHearts size={19} />
+                    ) : (
+                      <IconHeart size={19} />
+                    )}
+                  </ActionIcon>
+                </Tooltip>
+              </Popover.Target>
 
-            <Button variant="outline" color="gray">
-              👎
-            </Button>
+              <Popover.Dropdown
+                className={classes.reactionDropdown}
+                onMouseEnter={cancelReactionClose}
+                onMouseLeave={scheduleReactionClose}
+              >
+                <Group gap="xs" wrap="nowrap">
+                  <Tooltip label="Not for me">
+                    <ActionIcon
+                      className={classes.reactionOption}
+                      aria-label="Not for me"
+                      onClick={() => selectReaction("dislike")}
+                    >
+                      <IconHeartBroken size={20} />
+                    </ActionIcon>
+                  </Tooltip>
+
+                  <Tooltip label="I like this">
+                    <ActionIcon
+                      className={classes.reactionOption}
+                      aria-label="I like this"
+                      onClick={() => selectReaction("like")}
+                    >
+                      <IconHeart size={20} />
+                    </ActionIcon>
+                  </Tooltip>
+
+                  <Tooltip label="Love this">
+                    <ActionIcon
+                      className={classes.reactionOption}
+                      aria-label="Love this"
+                      onClick={() => selectReaction("love")}
+                    >
+                      <IconHearts size={20} />
+                    </ActionIcon>
+                  </Tooltip>
+                </Group>
+              </Popover.Dropdown>
+            </Popover>
           </Group>
         </div>
-      </div>
+      </Box>
 
-      {/* Recipe information */}
-      <div style={{ padding: "8px 32px 32px" }}>
-        <Group gap="md">
-          {cuisine && <Text c="white">{cuisine}</Text>}
+      <Box className={classes.recipeDetails}>
+        <Group gap="sm" wrap="wrap">
+          {cuisine && <Text className={classes.recipeMetadata}>{cuisine}</Text>}
 
-          {cookTime !== null && <Text c="white">{cookTime} min</Text>}
+          {cookTime !== null && (
+            <Text className={classes.recipeMetadata}>{cookTime} min</Text>
+          )}
 
           {dietaryTags?.map((tag) => (
-            <Text key={tag} c="white">
+            <Text key={tag} className={classes.recipeMetadata}>
               {tag}
             </Text>
           ))}
         </Group>
 
-        <Title order={3} mt="xl" c="white">
-          Ingredients
-        </Title>
+        <Divider className={classes.divider} />
 
-        <div style={{ marginTop: 8 }}>
-          {ingredients.length > 0 ? (
+        <h2 className={`${cormorant.className} ${classes.ingredientsTitle}`}>
+          Ingredients
+        </h2>
+
+        <Stack gap="md" mt="md">
+          {ingredientsLoading ? (
+            <Text className={classes.emptyIngredients}>
+              Loading ingredients...
+            </Text>
+          ) : ingredientsError ? (
+            <Text className={classes.emptyIngredients} role="alert">
+              Unable to load ingredients. Please try again later.
+            </Text>
+          ) : ingredients.length > 0 ? (
             ingredients.map((ingredient) => (
-              <Text key={ingredient.id} c="gray.3">
-                {ingredient.quantity && `${ingredient.quantity} `}
-                {ingredient.unit && `${ingredient.unit} `}
-                {ingredient.name}
-              </Text>
+              <Group
+                key={ingredient.id}
+                gap="md"
+                wrap="nowrap"
+                align="center"
+                className={classes.ingredientRow}
+              >
+                <Box className={classes.ingredientIcon}>
+                  <IngredientIllustration name={ingredient.name} />
+                </Box>
+
+                <Box>
+                  <Text
+                    className={`${cormorant.className} ${classes.ingredient}`}
+                  >
+                    {ingredient.name}
+                  </Text>
+
+                  <Text className={classes.ingredientQuantity}>
+                    {[ingredient.quantity, ingredient.unit]
+                      .filter(Boolean)
+                      .join(" ")}
+                  </Text>
+                </Box>
+              </Group>
             ))
           ) : (
-            <Text c="dimmed">No ingredients available.</Text>
+            <Text className={classes.emptyIngredients}>
+              No ingredients available.
+            </Text>
           )}
-        </div>
-      </div>
+        </Stack>
+      </Box>
     </Modal>
   );
 }

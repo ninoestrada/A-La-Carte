@@ -1,0 +1,173 @@
+.formContainer {
+  width: 100%;
+  max-width: 780px;
+  margin: 0 auto;
+}
+
+.recipeForm {
+  color: #302820;
+}
+
+.pageTitle {
+  color: #302820;
+  font-size: 38px;
+  font-weight: 400;
+  font-style: italic;
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.sectionTitle {
+  color: #302820;
+  text-align: center;
+  font-size: 29px;
+  font-weight: 400;
+  font-style: normal;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  margin: 32px 0 16px;
+}
+
+.recipeForm :global(.mantine-InputWrapper-label) {
+  color: #51483f;
+  font-family: inherit;
+  font-size: 20px;
+  font-weight: 400;
+  margin-bottom: 6px;
+}
+
+.recipeForm :global(.mantine-Input-input) {
+  background-color: #fffdf8;
+  border: 1px solid #c9b99d;
+  border-radius: 3px;
+  color: #302820;
+  font-family: inherit;
+  font-size: 18px;
+  min-height: 44px;
+}
+
+.recipeForm :global(.mantine-Input-input:focus) {
+  border-color: #9a603c;
+}
+
+.recipeForm :global(.mantine-Button-root) {
+  font-family: inherit;
+  font-size: 18px;
+  font-weight: 400;
+}
+
+.recipeForm :global(.mantine-Button-root[data-variant="outline"]) {
+  color: #9a603c;
+  border-color: #c9b99d;
+  background: transparent;
+}
+
+.recipeForm :global(.mantine-Button-root[data-variant="outline"]:hover) {
+  background: #eee4d7;
+}
+
+.recipeForm .saveButton {
+  background-color: #302820;
+  color: #faf7f0;
+  border: 1px solid #302820;
+  min-height: 48px;
+  margin-top: 20px;
+}
+
+.recipeForm .saveButton:hover {
+  background-color: #51483f;
+}
+
+@media (max-width: 600px) {
+  .sectionTitle {
+    font-size: 20px;
+    letter-spacing: 0.15em;
+  }
+
+  .formContainer {
+    padding: 0;
+  }
+}
+
+.removeColumn {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 42px;
+}
+
+.removeStepColumn {
+  padding-top: 55px;
+}
+
+.recipeForm .removeButton {
+  appearance: none;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  color: #302820;
+  font-family: inherit;
+  font-size: 18px;
+  font-weight: 400;
+  padding: 0 8px;
+  height: 44px;
+  min-height: 44px;
+  cursor: pointer;
+  transition: color 150ms ease;
+}
+
+.recipeForm .removeButton:hover:not(:disabled) {
+  background: transparent;
+  color: #9a603c;
+}
+
+.recipeForm .removeButton:disabled {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  color: #302820;
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+@media (max-width: 600px) {
+  .removeColumn {
+    padding-top: 0;
+    justify-content: flex-end;
+  }
+}
+
+/* Error alert */
+
+.recipeForm .formAlert {
+  background-color: #faf7f0;
+  border: 1px solid #c9b99d;
+  border-radius: 3px;
+  color: #302820;
+  font-family: inherit;
+  font-size: 17px;
+}
+
+.recipeForm .formAlert :global(.mantine-Alert-message) {
+  color: #e75f59;
+  font-family: inherit;
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.recipeForm .formAlert :global(.mantine-Alert-closeButton) {
+  color: #302820;
+  background-color: transparent;
+  border-radius: 50%;
+}
+
+.recipeForm .formAlert :global(.mantine-Alert-closeButton:hover) {
+  color: #302820;
+  background-color: #eee4d7;
+}
+
+.recipeForm .formAlert :global(.mantine-Alert-closeButton:focus-visible) {
+  outline: 2px solid #302820;
+  outline-offset: 2px;
+}

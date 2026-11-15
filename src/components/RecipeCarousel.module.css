@@ -1,0 +1,74 @@
+.carousel {
+  position: relative;
+}
+
+.carousel :global(.mantine-Carousel-control) {
+  opacity: 0;
+  background-color: #fffaf2;
+  color: #9a603c;
+  border: 1px solid #c9b99d;
+  transition:
+    opacity 550ms ease,
+    transform 550ms ease,
+    background-color 200ms ease;
+}
+
+.carousel :global(.mantine-Carousel-controls) {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.carousel :global(.mantine-Carousel-control) {
+  position: relative;
+  pointer-events: auto;
+}
+
+.carousel :global(.mantine-Carousel-control)::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 52px;
+  height: 300px;
+  transform: translate(-50%, -50%);
+}
+
+.carousel :global(.mantine-Carousel-viewport) {
+  padding: 16px 12px 24px;
+}
+
+@media (max-width: 480px) {
+  .carousel :global(.mantine-Carousel-viewport) {
+    padding: 16px 0 24px;
+  }
+}
+
+.carousel :global(.mantine-Carousel-slide) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.carousel :global(.mantine-Carousel-control:hover),
+.carousel :global(.mantine-Carousel-control:focus-visible) {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.carousel :global(.mantine-Carousel-control:hover) {
+  background-color: #eee8dc;
+  color: #75472c;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .carousel :global(.mantine-Carousel-control) {
+    transition: none;
+  }
+}
+
+@media (hover: none) {
+  .carousel :global(.mantine-Carousel-control) {
+    opacity: 1;
+  }
+}

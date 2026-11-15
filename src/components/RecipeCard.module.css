@@ -1,11 +1,114 @@
 .card {
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
+  position: relative;
+  display: block;
+  width: 250px;
+  max-width: 100%;
+  height: 300px;
+  padding: 0;
+  overflow: hidden;
+  border: 2px solid #c9b99d;
+  border-radius: 8px;
+  background-color: #eee8dc;
+  text-align: left;
   cursor: pointer;
+  transform: scale(1);
+  transition:
+    transform 280ms ease,
+    border-color 280ms ease,
+    box-shadow 280ms ease;
 }
 
-.card:hover {
-  transform: scale(1.05);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+.cardImage {
+  position: absolute;
+  inset: 0;
+  display: block;
+  background-size: cover;
+  background-position: center;
+}
+
+.cardOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  padding: 20px;
+  background: linear-gradient(to top, rgba(20, 15, 10, 0.75), transparent 65%);
+  opacity: 0;
+  transition: opacity 300ms ease;
+}
+
+.cardOverlay.noImage {
+  opacity: 1;
+}
+
+.cardTitle {
+  color: #fffaf2;
+  font-family: Georgia, serif;
+  font-size: 20px;
+  font-style: italic;
+  font-weight: 400;
+  line-height: 1.3;
+  transform: translateY(8px);
+  transition: transform 300ms ease;
+}
+
+.card:hover,
+.card:focus-visible {
+  transform: scale(1.035);
+  border-color: #c9b99d;
+  box-shadow:
+    0 0 0 2px #c9b99d,
+    0 10px 24px rgba(48, 40, 32, 0.15);
+  z-index: 2;
+}
+
+.card:hover .cardOverlay,
+.card:focus-visible .cardOverlay {
+  opacity: 1;
+}
+
+.card:hover .cardTitle,
+.card:focus-visible .cardTitle {
+  transform: translateY(0);
+}
+
+.card:focus-visible {
+  outline: 2px solid #9a603c;
+  outline-offset: 2px;
+}
+
+@media (hover: none) {
+  .cardOverlay {
+    opacity: 1;
+  }
+
+  .cardTitle {
+    transform: none;
+  }
+}
+
+.cardImage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-color: rgba(48, 40, 32, 0.22);
+  transition: opacity 300ms ease;
+}
+
+.card:hover .cardImage::after,
+.card:focus-visible .cardImage::after {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card,
+  .cardImage,
+  .cardOverlay,
+  .cardTitle {
+    transition: none;
+  }
+
+  .cardTitle {
+    transform: none;
+  }
 }

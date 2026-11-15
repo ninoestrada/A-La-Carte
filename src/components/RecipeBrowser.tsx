@@ -1,8 +1,11 @@
 "use client";
 
 import { useState } from "react";
+
 import Navbar from "@/components/Navbar";
-import RecipeCarousel from "@/components/RecipeCarousel";
+import RecipeMenu from "@/components/RecipeMenu";
+import { useRouter } from "next/navigation";
+import CreateRecipeModal from "@/components/CreateRecipeModal";
 
 interface Recipe {
   id: string;
@@ -23,18 +26,30 @@ interface RecipeBrowserProps {
   myRecipesLoadError: boolean;
 }
 
+type View = "menu" | "gallery";
+
 export default function RecipeBrowser({
   recipes,
   myRecipes,
   isSignedIn,
   myRecipesLoadError,
 }: RecipeBrowserProps) {
+  const router = useRouter();
   const [search, setSearch] = useState("");
   const [searchOpened, setSearchOpened] = useState(false);
+  const [createRecipeOpened, setCreateRecipeOpened] = useState(false);
+  const [globalView, setGlobalView] = useState<View>("menu");
+  const [viewOverrides, setViewOverrides] = useState<Record<string, View>>({});
 
   const normalizedSearch = search.trim().toLowerCase();
 
-  const searchResults = recipes.filter((recipe) => {
+  const searchableRecipes = [
+    ...new Map(
+      [...recipes, ...myRecipes].map((recipe) => [recipe.id, recipe]),
+    ).values(),
+  ];
+
+  const searchResults = searchableRecipes.filter((recipe) => {
     const titleMatches = recipe.title.toLowerCase().includes(normalizedSearch);
 
     const cuisineMatches =
@@ -46,6 +61,7 @@ export default function RecipeBrowser({
 
     return titleMatches || cuisineMatches || ingredientMatches;
   });
+
   const italianRecipes = recipes.filter(
     (recipe) => recipe.cuisine === "Italian",
   );
@@ -59,52 +75,67 @@ export default function RecipeBrowser({
     recipe.dietary_tags?.includes("vegetarian"),
   );
 
+  const sections = [
+    ...(isSignedIn && !myRecipesLoadError && myRecipes.length > 0
+      ? [{ id: "my-recipes", title: "My Recipes", recipes: myRecipes }]
+      : []),
+    { id: "quick", title: "Quick & Easy", recipes: quickRecipes },
+    { id: "italian", title: "Italian", recipes: italianRecipes },
+    { id: "vegetarian", title: "Vegetarian", recipes: vegetarianRecipes },
+  ];
+
+  const changeGlobalView = (view: View) => {
+    setGlobalView(view);
+    setViewOverrides({});
+  };
+
   return (
-    <>
-      <Navbar
-        search={search}
-        setSearch={setSearch}
-        searchOpened={searchOpened}
-        setSearchOpened={setSearchOpened}
+    <main
+      style={{
+        minHeight: "100vh",
+        padding: "32px 16px 64px",
+        backgroundColor: "#ececec",
+      }}
+    >
+      {isSignedIn && myRecipesLoadError && (
+        <p>Unable to load My Recipes. Please try again later.</p>
+      )}
+
+      {isSignedIn && !myRecipesLoadError && myRecipes.length === 0 && (
+        <p>You haven&apos;t created any recipes yet.</p>
+      )}
+
+      <RecipeMenu
+        sections={sections}
+        globalView={globalView}
+        viewOverrides={viewOverrides}
+        onGlobalViewChange={changeGlobalView}
+        onSectionViewChange={(id, view) =>
+          setViewOverrides((previous) => ({
+            ...previous,
+            [id]: view,
+          }))
+        }
+        navigation={
+          <Navbar
+            search={search}
+            setSearch={setSearch}
+            searchOpened={searchOpened}
+            setSearchOpened={setSearchOpened}
+            onCreateRecipe={() => setCreateRecipeOpened(true)}
+          />
+        }
+        searchQuery={search.trim()}
+        searchResults={searchResults}
       />
-
-      <main style={{ padding: 32 }}>
-        {normalizedSearch ? (
-          searchResults.length > 0 ? (
-            <RecipeCarousel title="Search Results" recipes={searchResults} />
-          ) : (
-            <div>
-              <h2>No recipes found for &quot;{search}&quot;</h2>
-              <p>Try searching for another recipe, ingredient, or cuisine.</p>
-            </div>
-          )
-        ) : (
-          <>
-            {isSignedIn && (
-              <section>
-                {myRecipesLoadError ? (
-                  <>
-                    <h2>My Recipes</h2>
-                    <p>Unable to load your recipes. Please try again later.</p>
-                  </>
-                ) : myRecipes.length > 0 ? (
-                  <RecipeCarousel title="My Recipes" recipes={myRecipes} />
-                ) : (
-                  <>
-                    <h2>My Recipes</h2>
-                    <p>You haven&apos;t created any recipes yet.</p>
-                  </>
-                )}
-              </section>
-            )}
-            <RecipeCarousel title="Quick & Easy" recipes={quickRecipes} />
-
-            <RecipeCarousel title="Italian" recipes={italianRecipes} />
-
-            <RecipeCarousel title="Vegetarian" recipes={vegetarianRecipes} />
-          </>
-        )}
-      </main>
-    </>
+      <CreateRecipeModal
+        opened={createRecipeOpened}
+        onClose={() => setCreateRecipeOpened(false)}
+        onSuccess={() => {
+          setCreateRecipeOpened(false);
+          router.refresh();
+        }}
+      />
+    </main>
   );
 }

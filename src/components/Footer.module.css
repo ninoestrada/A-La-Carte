@@ -1,0 +1,25 @@
+.footer {
+  margin-top: 8px;
+}
+
+.chefTitle {
+  color: #786e63;
+  font-family: Georgia, serif;
+  font-size: 12px;
+  font-style: italic;
+  text-align: center;
+}
+
+.chefName {
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #302820;
+}
+
+.copyright {
+  color: #786e63;
+  font-family: Georgia, serif;
+  font-size: 12px;
+  text-align: center;
+}

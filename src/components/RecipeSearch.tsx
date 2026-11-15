@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import { ActionIcon, TextInput } from "@mantine/core";
 import { IconSearch, IconX } from "@tabler/icons-react";
 import classes from "./RecipeSearch.module.css";
+import { cormorant } from "@/lib/fonts";
 
 interface RecipeSearchProps {
   search: string;
@@ -55,7 +56,7 @@ export default function RecipeSearch({
       <div className={`${classes.searchBox} ${opened ? classes.open : ""}`}>
         <ActionIcon
           variant="subtle"
-          color="gray"
+          color="dark"
           size={40}
           className={classes.searchIcon}
           aria-label={opened ? "Close search" : "Open search"}
@@ -90,14 +91,15 @@ export default function RecipeSearch({
             rightSection={
               <ActionIcon
                 variant="subtle"
-                color="gray"
+                color="dark"
+                className={classes.clearIcon}
                 aria-label="Clear and close search"
                 onClick={closeSearch}
               >
                 <IconX size={18} />
               </ActionIcon>
             }
-            className={classes.input}
+            className={`${classes.input} ${cormorant.className}`}
           />
         </div>
       </div>
