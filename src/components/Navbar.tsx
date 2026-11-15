@@ -12,6 +12,7 @@ interface NavbarProps {
   setSearch: (value: string) => void;
   searchOpened: boolean;
   setSearchOpened: (value: boolean) => void;
+  onCreateRecipe: () => void;
 }
 
 export default function Navbar({
@@ -19,12 +20,17 @@ export default function Navbar({
   setSearch,
   searchOpened,
   setSearchOpened,
+  onCreateRecipe,
 }: NavbarProps) {
   return (
     <nav aria-label="Main navigation" className={classes.navbar}>
       <Group justify="space-between" align="center" gap="md">
         <Link
           href="/recipes/new"
+          onClick={(event) => {
+            event.preventDefault();
+            onCreateRecipe();
+          }}
           className={`${cormorant.className} ${classes.createRecipe}`}
         >
           Create Recipe

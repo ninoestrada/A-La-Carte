@@ -4,6 +4,8 @@ import { useState } from "react";
 
 import Navbar from "@/components/Navbar";
 import RecipeMenu from "@/components/RecipeMenu";
+import { useRouter } from "next/navigation";
+import CreateRecipeModal from "@/components/CreateRecipeModal";
 
 interface Recipe {
   id: string;
@@ -32,8 +34,10 @@ export default function RecipeBrowser({
   isSignedIn,
   myRecipesLoadError,
 }: RecipeBrowserProps) {
+  const router = useRouter();
   const [search, setSearch] = useState("");
   const [searchOpened, setSearchOpened] = useState(false);
+  const [createRecipeOpened, setCreateRecipeOpened] = useState(false);
   const [globalView, setGlobalView] = useState<View>("menu");
   const [viewOverrides, setViewOverrides] = useState<Record<string, View>>({});
 
@@ -118,10 +122,19 @@ export default function RecipeBrowser({
             setSearch={setSearch}
             searchOpened={searchOpened}
             setSearchOpened={setSearchOpened}
+            onCreateRecipe={() => setCreateRecipeOpened(true)}
           />
         }
         searchQuery={search.trim()}
         searchResults={searchResults}
+      />
+      <CreateRecipeModal
+        opened={createRecipeOpened}
+        onClose={() => setCreateRecipeOpened(false)}
+        onSuccess={() => {
+          setCreateRecipeOpened(false);
+          router.refresh();
+        }}
       />
     </main>
   );
