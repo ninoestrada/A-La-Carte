@@ -63,6 +63,8 @@ export default function RecipeModal({
   dietaryTags,
 }: RecipeModalProps) {
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
+  const [ingredientsLoading, setIngredientsLoading] = useState(false);
+  const [ingredientsError, setIngredientsError] = useState(false);
   const [reaction, setReaction] = useState<Reaction>(null);
   const [reactionOpened, setReactionOpened] = useState(false);
   const reactionCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -97,20 +99,34 @@ export default function RecipeModal({
 
     async function loadIngredients() {
       setIngredients([]);
+      setIngredientsLoading(true);
+      setIngredientsError(false);
 
-      const { data, error } = await supabase
-        .from("recipe_ingredients")
-        .select("id, name, quantity, unit")
-        .eq("recipe_id", id);
+      try {
+        const { data, error } = await supabase
+          .from("recipe_ingredients")
+          .select("id, name, quantity, unit")
+          .eq("recipe_id", id);
 
-      if (cancelled) return;
+        if (cancelled) return;
 
-      if (error) {
+        if (error) {
+          console.error("Error loading ingredients:", error);
+          setIngredientsError(true);
+          return;
+        }
+
+        setIngredients(data ?? []);
+      } catch (error) {
+        if (cancelled) return;
+
         console.error("Error loading ingredients:", error);
-        return;
+        setIngredientsError(true);
+      } finally {
+        if (!cancelled) {
+          setIngredientsLoading(false);
+        }
       }
-
-      setIngredients(data ?? []);
     }
 
     void loadIngredients();
@@ -296,7 +312,15 @@ export default function RecipeModal({
         </h2>
 
         <Stack gap="md" mt="md">
-          {ingredients.length > 0 ? (
+          {ingredientsLoading ? (
+            <Text className={classes.emptyIngredients}>
+              Loading ingredients...
+            </Text>
+          ) : ingredientsError ? (
+            <Text className={classes.emptyIngredients} role="alert">
+              Unable to load ingredients. Please try again later.
+            </Text>
+          ) : ingredients.length > 0 ? (
             ingredients.map((ingredient) => (
               <Group
                 key={ingredient.id}

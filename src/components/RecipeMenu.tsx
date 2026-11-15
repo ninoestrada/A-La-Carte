@@ -329,6 +329,7 @@ export default function RecipeMenu({
       {selectedRecipe && (
         <>
           <RecipeModal
+            key={selectedRecipe.id}
             opened={recipeView === "preview"}
             onClose={closeRecipe}
             onViewRecipe={viewFullRecipe}
