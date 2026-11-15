@@ -202,7 +202,10 @@ export default function RecipeMenu({
                     </Title>
 
                     <Group gap={4} w={72} justify="flex-end" wrap="nowrap">
-                      <Tooltip label={`${section.title}: Menu view`}>
+                      <Tooltip
+                        label={`${section.title}: Menu view`}
+                        classNames={{ tooltip: classes.menuTooltip }}
+                      >
                         <ActionIcon
                           size="sm"
                           variant="subtle"
@@ -218,7 +221,10 @@ export default function RecipeMenu({
                         </ActionIcon>
                       </Tooltip>
 
-                      <Tooltip label={`${section.title}: Gallery view`}>
+                      <Tooltip
+                        label={`${section.title}: Gallery view`}
+                        classNames={{ tooltip: classes.menuTooltip }}
+                      >
                         <ActionIcon
                           size="sm"
                           variant={
