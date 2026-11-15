@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import {
   Modal,
   Button,
-  Title,
   Text,
   Group,
   Box,
@@ -292,12 +291,9 @@ export default function RecipeModal({
 
         <Divider className={classes.divider} />
 
-        <Title
-          order={3}
-          className={`${cormorant.className} ${classes.ingredientsTitle}`}
-        >
+        <h2 className={`${cormorant.className} ${classes.ingredientsTitle}`}>
           Ingredients
-        </Title>
+        </h2>
 
         <Stack gap="md" mt="md">
           {ingredients.length > 0 ? (

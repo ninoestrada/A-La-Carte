@@ -1,16 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  Box,
-  Divider,
-  Group,
-  Loader,
-  Modal,
-  Stack,
-  Text,
-  Title,
-} from "@mantine/core";
+import { Box, Divider, Group, Loader, Modal, Stack, Text } from "@mantine/core";
 import { IconArrowLeft, IconX } from "@tabler/icons-react";
 
 import { createClient } from "@/lib/supabase/client";
@@ -200,12 +191,11 @@ export default function FullRecipeModal({
           ) : (
             <>
               <section>
-                <Title
-                  order={2}
+                <h2
                   className={`${cormorant.className} ${classes.sectionTitle}`}
                 >
                   Ingredients
-                </Title>
+                </h2>
 
                 {ingredients.length > 0 ? (
                   <div className={classes.ingredientsGrid}>
@@ -244,12 +234,11 @@ export default function FullRecipeModal({
               <Divider className={classes.divider} />
 
               <section>
-                <Title
-                  order={2}
+                <h2
                   className={`${cormorant.className} ${classes.sectionTitle}`}
                 >
                   Instructions
-                </Title>
+                </h2>
 
                 {instructions.length > 0 ? (
                   <Stack gap="lg">
