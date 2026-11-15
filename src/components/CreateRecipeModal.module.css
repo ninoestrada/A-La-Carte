@@ -96,6 +96,10 @@
   padding-top: 42px;
 }
 
+.removeStepColumn {
+  padding-top: 55px;
+}
+
 .recipeForm .removeButton {
   appearance: none;
   background: transparent;

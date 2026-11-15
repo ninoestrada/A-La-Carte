@@ -442,7 +442,7 @@ export default function CreateRecipeForm({
 
             <Grid.Col
               span={{ base: 12, sm: 2 }}
-              className={classes.removeColumn}
+              className={`${classes.removeColumn} ${classes.removeStepColumn}`}
             >
               <Button
                 variant="subtle"
